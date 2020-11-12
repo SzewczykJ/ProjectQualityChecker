@@ -1,5 +1,3 @@
-using System;
-
 namespace ProjectQualityChecker.Models
 {
     public class ErrorViewModel
