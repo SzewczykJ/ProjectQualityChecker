@@ -5,7 +5,7 @@ namespace ProjectQualityChecker.Data.Database
     public class Developer
     {
         [Key]
-        public long DeveloperId { get; set; }
+        public int DeveloperId { get; set; }
 
         [Required]
         public string Username { get; set; }

@@ -5,7 +5,7 @@ namespace ProjectQualityChecker.Data.Database
     public class File
     {
         [Key]
-        public long FileId { get; set; }
+        public int FileId { get; set; }
 
         public string SHA { get; set; }
         public FileDetail FileDetail { get; set; }

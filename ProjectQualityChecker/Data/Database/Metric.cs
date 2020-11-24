@@ -7,7 +7,7 @@ namespace ProjectQualityChecker.Data.Database
     public class Metric
     {
         [Key]
-        public long MetricId { get; set; }
+        public int MetricId { get; set; }
 
         public int? Complexity { get; set; }
         public int? CognitiveComplexity { get; set; }
@@ -23,7 +23,7 @@ namespace ProjectQualityChecker.Data.Database
         public DateTime Date { get; set; }
 
         [ForeignKey("File")]
-        public long FileId { get; set; }
+        public int FileId { get; set; }
 
         [Required]
         public File File { get; set; }

@@ -7,7 +7,7 @@ namespace ProjectQualityChecker.Data.Database
     public class Commit
     {
         [Key]
-        public long CommitId { get; set; }
+        public int CommitId { get; set; }
 
         public string? Sha { get; set; }
         public string? Message { get; set; }
