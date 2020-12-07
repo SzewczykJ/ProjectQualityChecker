@@ -5,11 +5,9 @@ namespace ProjectQualityChecker.Data.Database
 {
     public class Repository
     {
-        [Key]
-        public long RepositoryId { get; set; }
+        [Key] public long RepositoryId { get; set; }
 
-        [Required]
-        public string Name { get; set; }
+        [Required] public string Name { get; set; }
 
         public string FullName { get; set; }
         public string Url { get; set; }

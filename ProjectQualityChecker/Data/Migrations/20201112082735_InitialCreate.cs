@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using System;
 
 namespace ProjectQualityChecker.Data.Migrations
 {
@@ -9,70 +9,63 @@ namespace ProjectQualityChecker.Data.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Branch",
-                columns: table => new
+                "Branch",
+                table => new
                 {
                     BranchId = table.Column<int>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                        .Annotation("Npgsql:ValueGenerationStrategy",
+                            NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(nullable: true)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Branch", x => x.BranchId);
-                });
+                constraints: table => { table.PrimaryKey("PK_Branch", x => x.BranchId); });
 
             migrationBuilder.CreateTable(
-                name: "Developers",
-                columns: table => new
+                "Developers",
+                table => new
                 {
                     DeveloperId = table.Column<long>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                        .Annotation("Npgsql:ValueGenerationStrategy",
+                            NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Username = table.Column<string>(nullable: false),
                     Email = table.Column<string>(nullable: false),
                     FirstName = table.Column<string>(nullable: true),
                     LastName = table.Column<string>(nullable: true)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Developers", x => x.DeveloperId);
-                });
+                constraints: table => { table.PrimaryKey("PK_Developers", x => x.DeveloperId); });
 
             migrationBuilder.CreateTable(
-                name: "Languages",
-                columns: table => new
+                "Languages",
+                table => new
                 {
                     LanguageId = table.Column<int>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                        .Annotation("Npgsql:ValueGenerationStrategy",
+                            NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(nullable: true)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Languages", x => x.LanguageId);
-                });
+                constraints: table => { table.PrimaryKey("PK_Languages", x => x.LanguageId); });
 
             migrationBuilder.CreateTable(
-                name: "Repositories",
-                columns: table => new
+                "Repositories",
+                table => new
                 {
                     RepositoryId = table.Column<long>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                        .Annotation("Npgsql:ValueGenerationStrategy",
+                            NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(nullable: false),
                     FullName = table.Column<string>(nullable: true),
                     Url = table.Column<string>(nullable: true),
                     Private = table.Column<bool>(nullable: false),
                     Key = table.Column<string>(nullable: true)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Repositories", x => x.RepositoryId);
-                });
+                constraints: table => { table.PrimaryKey("PK_Repositories", x => x.RepositoryId); });
 
             migrationBuilder.CreateTable(
-                name: "FileDetails",
-                columns: table => new
+                "FileDetails",
+                table => new
                 {
                     FileDetailId = table.Column<long>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                        .Annotation("Npgsql:ValueGenerationStrategy",
+                            NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(nullable: true),
                     Extension = table.Column<string>(nullable: true),
                     FullPath = table.Column<string>(nullable: true),
@@ -82,19 +75,20 @@ namespace ProjectQualityChecker.Data.Migrations
                 {
                     table.PrimaryKey("PK_FileDetails", x => x.FileDetailId);
                     table.ForeignKey(
-                        name: "FK_FileDetails_Languages_LanguageId",
-                        column: x => x.LanguageId,
-                        principalTable: "Languages",
-                        principalColumn: "LanguageId",
+                        "FK_FileDetails_Languages_LanguageId",
+                        x => x.LanguageId,
+                        "Languages",
+                        "LanguageId",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Commits",
-                columns: table => new
+                "Commits",
+                table => new
                 {
                     CommitId = table.Column<long>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                        .Annotation("Npgsql:ValueGenerationStrategy",
+                            NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Sha = table.Column<string>(nullable: true),
                     Message = table.Column<string>(nullable: true),
                     Date = table.Column<DateTime>(nullable: false),
@@ -106,31 +100,32 @@ namespace ProjectQualityChecker.Data.Migrations
                 {
                     table.PrimaryKey("PK_Commits", x => x.CommitId);
                     table.ForeignKey(
-                        name: "FK_Commits_Branch_BranchId",
-                        column: x => x.BranchId,
-                        principalTable: "Branch",
-                        principalColumn: "BranchId",
+                        "FK_Commits_Branch_BranchId",
+                        x => x.BranchId,
+                        "Branch",
+                        "BranchId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Commits_Developers_DeveloperId",
-                        column: x => x.DeveloperId,
-                        principalTable: "Developers",
-                        principalColumn: "DeveloperId",
+                        "FK_Commits_Developers_DeveloperId",
+                        x => x.DeveloperId,
+                        "Developers",
+                        "DeveloperId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Commits_Repositories_RepositoryId",
-                        column: x => x.RepositoryId,
-                        principalTable: "Repositories",
-                        principalColumn: "RepositoryId",
+                        "FK_Commits_Repositories_RepositoryId",
+                        x => x.RepositoryId,
+                        "Repositories",
+                        "RepositoryId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Files",
-                columns: table => new
+                "Files",
+                table => new
                 {
                     FileId = table.Column<long>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                        .Annotation("Npgsql:ValueGenerationStrategy",
+                            NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     SHA = table.Column<string>(nullable: true),
                     FileDetailId = table.Column<long>(nullable: true),
                     CommitId = table.Column<long>(nullable: false),
@@ -140,25 +135,26 @@ namespace ProjectQualityChecker.Data.Migrations
                 {
                     table.PrimaryKey("PK_Files", x => x.FileId);
                     table.ForeignKey(
-                        name: "FK_Files_Commits_CommitId",
-                        column: x => x.CommitId,
-                        principalTable: "Commits",
-                        principalColumn: "CommitId",
+                        "FK_Files_Commits_CommitId",
+                        x => x.CommitId,
+                        "Commits",
+                        "CommitId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Files_FileDetails_FileDetailId",
-                        column: x => x.FileDetailId,
-                        principalTable: "FileDetails",
-                        principalColumn: "FileDetailId",
+                        "FK_Files_FileDetails_FileDetailId",
+                        x => x.FileDetailId,
+                        "FileDetails",
+                        "FileDetailId",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Metrics",
-                columns: table => new
+                "Metrics",
+                table => new
                 {
                     MetricId = table.Column<long>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                        .Annotation("Npgsql:ValueGenerationStrategy",
+                            NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Complexity = table.Column<int>(nullable: true),
                     CognitiveComplexity = table.Column<int>(nullable: true),
                     DuplicatedLines = table.Column<int>(nullable: true),
@@ -177,75 +173,75 @@ namespace ProjectQualityChecker.Data.Migrations
                 {
                     table.PrimaryKey("PK_Metrics", x => x.MetricId);
                     table.ForeignKey(
-                        name: "FK_Metrics_Files_FileId",
-                        column: x => x.FileId,
-                        principalTable: "Files",
-                        principalColumn: "FileId",
+                        "FK_Metrics_Files_FileId",
+                        x => x.FileId,
+                        "Files",
+                        "FileId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Commits_BranchId",
-                table: "Commits",
-                column: "BranchId");
+                "IX_Commits_BranchId",
+                "Commits",
+                "BranchId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Commits_DeveloperId",
-                table: "Commits",
-                column: "DeveloperId");
+                "IX_Commits_DeveloperId",
+                "Commits",
+                "DeveloperId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Commits_RepositoryId",
-                table: "Commits",
-                column: "RepositoryId");
+                "IX_Commits_RepositoryId",
+                "Commits",
+                "RepositoryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FileDetails_LanguageId",
-                table: "FileDetails",
-                column: "LanguageId");
+                "IX_FileDetails_LanguageId",
+                "FileDetails",
+                "LanguageId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Files_CommitId",
-                table: "Files",
-                column: "CommitId");
+                "IX_Files_CommitId",
+                "Files",
+                "CommitId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Files_FileDetailId",
-                table: "Files",
-                column: "FileDetailId");
+                "IX_Files_FileDetailId",
+                "Files",
+                "FileDetailId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Metrics_FileId",
-                table: "Metrics",
-                column: "FileId",
+                "IX_Metrics_FileId",
+                "Metrics",
+                "FileId",
                 unique: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Metrics");
+                "Metrics");
 
             migrationBuilder.DropTable(
-                name: "Files");
+                "Files");
 
             migrationBuilder.DropTable(
-                name: "Commits");
+                "Commits");
 
             migrationBuilder.DropTable(
-                name: "FileDetails");
+                "FileDetails");
 
             migrationBuilder.DropTable(
-                name: "Branch");
+                "Branch");
 
             migrationBuilder.DropTable(
-                name: "Developers");
+                "Developers");
 
             migrationBuilder.DropTable(
-                name: "Repositories");
+                "Repositories");
 
             migrationBuilder.DropTable(
-                name: "Languages");
+                "Languages");
         }
     }
 }
