@@ -1,0 +1,46 @@
+version: '3.7'
+
+services:
+
+#  backend:
+    # container_name: 'PQC'
+    # build: .
+    # ports:
+    #  - "5000:5000"
+    # depends_on:
+    #  - "postgres_pqc"
+    #  - "sonarqube"
+    # environment:
+    #   ASPNETCORE_ENVIRONMENT: Development
+    #   ASPNETCORE_URLS: http://+:5000
+    # restart: unless-stopped
+    # networks:
+    #   - backend-network
+
+  postgres_pqc:
+    container_name: 'magisterka'
+    image: postgres:12
+    environment:
+      # change this for a "real" app!
+      POSTGRES_DB: magisterka
+      POSTGRES_USER: magisterka
+      POSTGRES_PASSWORD: magisterka
+    volumes:
+      - ./docker_postgres_init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
+    restart: unless-stopped
+    ports:
+     - "5432:5432"
+    networks:
+      - backend-network
+
+  sonarqube:
+    container_name: sonarqube
+    image: sonarqube:8.5.1-community
+    ports:
+      - 8000:9000
+    networks:
+      - backend-network
+
+networks:
+  backend-network:
+    driver: bridge

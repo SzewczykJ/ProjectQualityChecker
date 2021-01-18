@@ -1,17 +1,24 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using ProjectQualityChecker.Data.Database;
 using ProjectQualityChecker.Models;
-using System.Diagnostics;
+using ProjectQualityChecker.Services;
 
 namespace ProjectQualityChecker.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+      
+        private readonly SonarQubeClient _sonarQubeClient;
+        private SonarQubeScanner _sonarQubeScanner;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, SonarQubeClient sonarQubeClient, SonarQubeScanner qubeScanner)
         {
-            _logger = logger;
+     
+            _sonarQubeClient = sonarQubeClient;
+            _sonarQubeScanner = qubeScanner;
         }
 
         public IActionResult Index()
@@ -28,6 +35,16 @@ namespace ProjectQualityChecker.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        public async Task Test([FromForm] string name,[FromForm] string url)
+        {
+            var repo = new Repository()
+            {Name = name,
+                Url = url
+                
+            };
+            await _sonarQubeScanner.ScanRepositoryAsync(repo);
         }
     }
 }

@@ -15,7 +15,7 @@ namespace ProjectQualityChecker.Data.DataRepository
 
         public Branch GetByName(string name)
         {
-            return _context.Branches.SingleOrDefault(b => b.Name == name);
+            return _context.Branches.FirstOrDefault(b => b.Name == name);
         }
 
         public int Add(Branch branch)
