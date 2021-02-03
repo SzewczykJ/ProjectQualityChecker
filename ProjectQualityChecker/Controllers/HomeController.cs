@@ -12,9 +12,9 @@ namespace ProjectQualityChecker.Controllers
     {
       
         private readonly SonarQubeClient _sonarQubeClient;
-        private SonarQubeScanner _sonarQubeScanner;
+        private readonly SonarQubeScanner _sonarQubeScanner;
 
-        public HomeController(ILogger<HomeController> logger, SonarQubeClient sonarQubeClient, SonarQubeScanner qubeScanner)
+        public HomeController(SonarQubeClient sonarQubeClient, SonarQubeScanner qubeScanner)
         {
      
             _sonarQubeClient = sonarQubeClient;

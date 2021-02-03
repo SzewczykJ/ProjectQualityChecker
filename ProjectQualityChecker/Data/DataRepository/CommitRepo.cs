@@ -2,8 +2,9 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using ProjectQualityChecker.Data.Database;
 using ProjectQualityChecker.Data.IDataRepository;
+using ProjectQualityChecker.Models.Result;
+using Commit = ProjectQualityChecker.Data.Database.Commit;
 
 namespace ProjectQualityChecker.Data.DataRepository
 {
@@ -38,6 +39,27 @@ namespace ProjectQualityChecker.Data.DataRepository
         {
             _context.Commits.Remove(commit);
             return _context.SaveChanges();
+        }
+
+        public CommitSummaryList GetCommitSummaries(int repositoryId)
+        {
+            CommitSummaryList response = new CommitSummaryList();
+            
+            response.CommitList = _context.Commits
+                
+            .Include(dev => dev.Developer)
+            .Include(branch => branch.Branch)
+            .Where(r => r.Repository.RepositoryId == repositoryId)
+            .Select(c => new CommitSummary()
+            {
+                Developer = c.Developer,
+                Date = c.Date,
+                Message = c.Message,
+                Sha = c.Sha,
+                CommitId = c.CommitId
+            }).ToList();
+            
+            return response;
         }
     }
 }

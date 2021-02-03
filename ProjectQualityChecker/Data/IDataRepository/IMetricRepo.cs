@@ -1,4 +1,6 @@
-﻿using ProjectQualityChecker.Data.Database;
+﻿using System.Collections.Generic;
+using ProjectQualityChecker.Data.Database;
+using ProjectQualityChecker.Models.Result;
 
 namespace ProjectQualityChecker.Data.IDataRepository
 {
@@ -9,5 +11,7 @@ namespace ProjectQualityChecker.Data.IDataRepository
         int Update(Metric metric);
 
         int Delete(Metric metric);
+
+        Dictionary<int, AverageMetrics> GetAverageMetricsGroupedByCommit(int repositoryId);
     }
 }

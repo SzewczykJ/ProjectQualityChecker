@@ -58,7 +58,8 @@ namespace ProjectQualityChecker
             services.AddScoped<SonarQubeScanner, SonarQubeScanner>();
             services.AddScoped<SonarQubeService, SonarQubeService>();
             services.AddScoped<RepositoryService, RepositoryService>();
-
+            services.AddScoped<ResultServices, ResultServices>();
+            
             services.AddScoped<IBranchRepo, BranchRepo>();
             services.AddScoped<ICommitRepo, CommitRepo>();
             services.AddScoped<IDeveloperRepo, DeveloperRepo>();
@@ -67,8 +68,9 @@ namespace ProjectQualityChecker
             services.AddScoped<ILanguageRepo, LanguageRepo>();
             services.AddScoped<IMetricRepo, MetricsRepo>();
             services.AddScoped<IRepositoryRepo, RepositoryRepo>();
+            
 
-         
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

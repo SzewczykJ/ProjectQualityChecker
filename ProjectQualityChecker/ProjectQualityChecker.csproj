@@ -30,4 +30,42 @@
             <CopyToPublishDirectory>Always</CopyToPublishDirectory>
         </Content>
     </ItemGroup>
+ 
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="wwwroot\lib\chart.js-3.0.0-beta\dist\chart.esm.d.ts" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\chart.js-3.0.0-beta\dist\chart.esm.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\chart.js-3.0.0-beta\dist\chart.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\chart.js-3.0.0-beta\dist\chart.min.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\chart.js-3.0.0-beta\helpers\canvas.d.ts" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\chart.js-3.0.0-beta\helpers\canvas.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\chart.js-3.0.0-beta\helpers\chunks\helpers.options.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\chart.js-3.0.0-beta\helpers\chunks\index.d.ts" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\chart.js-3.0.0-beta\helpers\collection.d.ts" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\chart.js-3.0.0-beta\helpers\collection.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\chart.js-3.0.0-beta\helpers\color.d.ts" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\chart.js-3.0.0-beta\helpers\color.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\chart.js-3.0.0-beta\helpers\core.d.ts" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\chart.js-3.0.0-beta\helpers\core.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\chart.js-3.0.0-beta\helpers\curve.d.ts" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\chart.js-3.0.0-beta\helpers\curve.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\chart.js-3.0.0-beta\helpers\dom.d.ts" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\chart.js-3.0.0-beta\helpers\dom.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\chart.js-3.0.0-beta\helpers\easing.d.ts" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\chart.js-3.0.0-beta\helpers\easing.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\chart.js-3.0.0-beta\helpers\extras.d.ts" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\chart.js-3.0.0-beta\helpers\extras.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\chart.js-3.0.0-beta\helpers\interpolation.d.ts" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\chart.js-3.0.0-beta\helpers\interpolation.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\chart.js-3.0.0-beta\helpers\math.d.ts" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\chart.js-3.0.0-beta\helpers\math.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\chart.js-3.0.0-beta\helpers\options.d.ts" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\chart.js-3.0.0-beta\helpers\options.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\chart.js-3.0.0-beta\helpers\rtl.d.ts" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\chart.js-3.0.0-beta\helpers\rtl.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\chart.js-3.0.0-beta\helpers\segment.d.ts" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\chart.js-3.0.0-beta\helpers\segment.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\chart.js-3.0.0-beta\LICENSE.md" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\chart.js-3.0.0-beta\package.json" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\chart.js-3.0.0-beta\README.md" />
+    </ItemGroup>
 </Project>

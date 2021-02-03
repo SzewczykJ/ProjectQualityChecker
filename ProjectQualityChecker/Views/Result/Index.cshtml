@@ -1,0 +1,171 @@
+﻿@model ProjectQualityChecker.Models.Result.ListRepositories;
+@{
+    ViewData["Title"] = "Result";
+}
+
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="form-group">
+            @Html.LabelFor(x => Model.Repositories, new {@class = "control-label col-md-2"})
+            <div class="col-md-5">
+                @Html.DropDownListFor(x => Model.Repositories, new SelectList(Model.Repositories, "RepositoryId", "Name"), new {@class = "form-control", id = "repository"})
+                @Html.ValidationMessageFor(x => x.Repositories, "", new {@class = "text-danger"})
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="button" name="repository_confirm" value="Select" class="btn btn-primary"/>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="graphs">
+    <div class="row justify-content-center my-5" id="chartImage">
+        <div class="col-md-8 mt-5">
+            <img src="~/images/undraw_Charts_re_5qe9.svg" alt="chart">
+        </div>
+    </div>
+
+</div>
+@section Scripts {
+    <script>
+$(document).ready(function(){
+       
+    function BuildChart(dataset, chartTitle,selectedProperty, graph) {
+            
+      return new Chart(graph, {
+        type: 'bar',
+        data: {
+            labels: dataset.map(el => el.Sha.substring(0,6)),
+            datasets: [{
+                label: chartTitle, 
+                data: dataset.filter(commit=> commit.Metrics != null &&  commit.Metrics[selectedProperty] != null)
+                                         .map(commit =>commit.Metrics[selectedProperty]),
+                borderColor: 'rgb(33,163,215)',
+                backgroundColor: 'rgb(25,121,159)',
+            }],
+        },
+        options: {
+            responsive: true, // Instruct chart JS to respond nicely.
+            maintainAspectRatio: false, // Add to prevent default behavior of full-width/height 
+            tooltips: {
+                intersect: false, 
+                backgroundColor: '#FFF',
+                labelColor:'#000',
+                titleFontSize: 1,
+                titleFontColor: '#0066ff',
+                bodyFontColor: '#000',
+                bodyFontSize: 14,
+                bodyFontFamily: 'Roboto',
+                bodyFontStyle: 'bold',
+                displayColors: false,
+                borderColor:'rgb(25,121,159)',
+                borderWidth:1,
+                callbacks: { 
+                    title: function() {},
+                    label: function(toolTipItem, data) {
+                        let text = [''];
+                        text.push(toolTipItem.dataset.label + " : " + toolTipItem.dataset.data[toolTipItem.dataIndex]);
+                        text.push("Date:   " + new Date(dataset[toolTipItem.dataIndex].Date).toDateString("yyyy-MM-dd")); 
+                        text.push("Sha:   " + dataset[toolTipItem.dataIndex].Sha); 
+                        text.push("Author:   " + dataset[toolTipItem.dataIndex].Developer.Username); 
+                        text.push("Message:   " + dataset[toolTipItem.dataIndex].Message); 
+                        return text;
+                    },
+                    labelTextColor: function(tooltipItem, chart) {
+                        return '#0a0d1c';
+                    }
+                },    
+            },
+            scales: {
+                xAxes: [{
+                    scaleLabel: {
+                        display: false,
+                    }
+            }],
+            yAxes: [{
+              scaleLabel: {
+                display: true,
+              }
+            }]
+          },
+        }
+      });
+    }
+    
+   
+   
+
+    let stored_JSON; 
+    let metricsName = [
+        "Complexity",
+        "CognitiveComplexity",
+        "DuplicatedLines",
+        "CodeSmells",
+       // "NewCodeSmells",
+        "CommentLines",
+        "CommentLinesDensity",
+        "Ncloc",
+        "Statements",
+       // "BranchCoverage",
+       // "LineCoverage"
+        ];
+    
+    function GenerateGraphs(){
+       $.each(metricsName, function (index, value) {
+          
+            if( $('#'+value).length != 0){
+                $('#'+value).parent().parent().remove();
+            }  
+           
+            $('#graphs').append($('<div/>', {'class': 'row justify-content-center my-5'}).append(
+                $('<div/>', {'class': 'col-md-8'}).append(
+                    $('<canvas/>', {id: value,width:400,height:400})
+                )
+            ));   
+
+
+            var data = stored_JSON.CommitList
+                 .filter(commit=> commit.Metrics != null &&  commit.Metrics[value] != null)
+                 .map(commit =>commit);
+                      
+            var selectedGraph = $('#'+value)[0];
+            var context = selectedGraph.getContext('2d');
+            
+            BuildChart(data, value,  value, context);
+       });
+    
+    }
+    
+    
+    $('input[name="repository_confirm"]').click(function() {
+        var selectedRepository = $('#repository').val();
+        
+        $.ajax({
+           method: "GET",
+           url: "/result/getresult",
+           data: {
+              repositoryId: selectedRepository
+           },
+           beforeSend: function() {
+             
+           },
+           success: function(response) {
+               $('#chartImage').hide();
+               stored_JSON=response;
+               GenerateGraphs();
+           },
+           error:function (response){
+               console.log(response);
+           }
+       });
+        
+    });
+});
+ 
+</script>
+    <script src="~/lib/3.0.0-alpha.2/dist/chart.min.js"></script>
+    @* <script src="~/lib/chart.js-2.9.4/dist/Chart.bundle.js"></script> *@
+}
