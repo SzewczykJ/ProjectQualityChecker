@@ -6,19 +6,20 @@ using System.Threading.Tasks;
 using ProjectQualityChecker.Data.Database;
 using ProjectQualityChecker.Data.IDataRepository;
 using ProjectQualityChecker.Models;
+using ProjectQualityChecker.Services.IServices;
 using Commit = ProjectQualityChecker.Data.Database.Commit;
 using File = ProjectQualityChecker.Data.Database.File;
 
 namespace ProjectQualityChecker.Services
 {
-    public class SonarQubeService
+    public class SonarQubeService : ISonarQubeService
     {
         private readonly IFileDetailRepo _fileDetailRepo;
         private readonly IFileRepo _fileRepo;
         private readonly ILanguageRepo _languageRepo;
-        private readonly SonarQubeClient _sonarQubeClient;
+        private readonly ISonarQubeClient _sonarQubeClient;
 
-        public SonarQubeService(SonarQubeClient sonarQubeClient, IFileRepo fileRepo,
+        public SonarQubeService(ISonarQubeClient sonarQubeClient, IFileRepo fileRepo,
             IFileDetailRepo fileDetailRepo, ILanguageRepo languageRepo)
         {
             _sonarQubeClient = sonarQubeClient;
@@ -44,7 +45,7 @@ namespace ProjectQualityChecker.Services
                     if (component.Qualifier.Equals("FIL") || component.Qualifier.Equals("UTS"))
                     {
                         var root = await _sonarQubeClient.GetMetricsForFile(component.Key);
-                        var metric = MappMetric(root.Component.Measures);
+                        var metric = MapMetric(root.Component.Measures);
                         var fileDetail = _fileDetailRepo.FindByPath(component.Path);
 
                         if (fileDetail == null)
@@ -68,7 +69,7 @@ namespace ProjectQualityChecker.Services
                     }
         }
 
-        private Metric MappMetric(List<Measure> measures)
+        private Metric MapMetric(List<Measure> measures)
         {
             var metric = new Metric();
             metric.Date = DateTime.UtcNow;
@@ -89,9 +90,9 @@ namespace ProjectQualityChecker.Services
                         metric.CodeSmells = int.Parse(measure.Value);
                         break;
                     case "new_code_smells":
-                       metric.NewCodeSmells = measure.Value == null ? (int?) null : int.Parse(measure.Value);
-                       break;
-                   case "comment_lines":
+                        metric.NewCodeSmells = measure.Value == null ? (int?) null : int.Parse(measure.Value);
+                        break;
+                    case "comment_lines":
                         metric.CommentLines = int.Parse(measure.Value);
                         break;
                     case "comment_lines_density":

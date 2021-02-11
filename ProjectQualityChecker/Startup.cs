@@ -1,19 +1,16 @@
 using System;
-using System.IO;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using ProjectQualityChecker.Data;
 using ProjectQualityChecker.Data.DataRepository;
 using ProjectQualityChecker.Data.IDataRepository;
 using ProjectQualityChecker.Services;
+using ProjectQualityChecker.Services.IServices;
 
 namespace ProjectQualityChecker
 {
@@ -45,21 +42,23 @@ namespace ProjectQualityChecker
                 o.JsonSerializerOptions.PropertyNamingPolicy = null;
                 o.JsonSerializerOptions.DictionaryKeyPolicy = null;
             });
-           
+
             services.AddDbContext<AppDbContext>(options =>
             {
                 options.UseLoggerFactory(MyLoggerFactory); //DEVELOPMENT ONLY
                 options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")).EnableSensitiveDataLogging();
             });
 
-            services.AddHttpClient<SonarQubeClient, SonarQubeClient>(client =>
+            services.AddHttpClient<ISonarQubeClient, SonarQubeClient>(client =>
                 client.BaseAddress = new Uri(Configuration["SonarQube_API"]));
 
-            services.AddScoped<SonarQubeScanner, SonarQubeScanner>();
-            services.AddScoped<SonarQubeService, SonarQubeService>();
-            services.AddScoped<RepositoryService, RepositoryService>();
-            services.AddScoped<ResultServices, ResultServices>();
-            
+            services.AddScoped<ISonarQubeScanner, SonarQubeScanner>();
+            services.AddScoped<ISonarQubeService, SonarQubeService>();
+            services.AddScoped<IRepositoryService, RepositoryService>();
+            services.AddScoped<IResultServices, ResultServices>();
+            services.AddScoped<ICommitService, CommitService>();
+            services.AddScoped<IDeveloperService, DeveloperService>();
+
             services.AddScoped<IBranchRepo, BranchRepo>();
             services.AddScoped<ICommitRepo, CommitRepo>();
             services.AddScoped<IDeveloperRepo, DeveloperRepo>();
@@ -68,41 +67,34 @@ namespace ProjectQualityChecker
             services.AddScoped<ILanguageRepo, LanguageRepo>();
             services.AddScoped<IMetricRepo, MetricsRepo>();
             services.AddScoped<IRepositoryRepo, RepositoryRepo>();
-            
-
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-            {
-                app.UseCors(x =>
-                    x.AllowAnyOrigin()
-                        .AllowAnyMethod()
-                        .AllowAnyHeader()
-                );
+        {
+            app.UseCors(x =>
+                x.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+            );
 
-                if (env.IsDevelopment())
-                {
-                    app.UseDeveloperExceptionPage();
-                }
-                else
-                {
-                    app.UseExceptionHandler("/Home/Error");
-                    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                 //   app.UseHsts();
-                }
+            if (env.IsDevelopment())
+                app.UseDeveloperExceptionPage();
+            else
+                app.UseExceptionHandler("/Home/Error");
+            // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+            //   app.UseHsts();
 
-             //   app.UseHttpsRedirection();
-             app.UseStaticFiles();
+            //   app.UseHttpsRedirection();
+            app.UseStaticFiles();
 
             app.UseRouting();
 
-          //  app.UseAuthorization();
+            //  app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
-               endpoints.MapControllerRoute(
+                endpoints.MapControllerRoute(
                     "default",
                     "{controller=Home}/{action=Index}/{id?}");
             });

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using ProjectQualityChecker.Data.Database;
 
 namespace ProjectQualityChecker.Models.Result
@@ -15,7 +13,7 @@ namespace ProjectQualityChecker.Models.Result
         public Developer Developer { get; set; }
 
         public Branch Branch { get; set; }
-        
+
         public AverageMetrics Metrics { get; set; }
     }
 }

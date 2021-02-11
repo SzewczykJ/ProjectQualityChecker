@@ -7,10 +7,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using ProjectQualityChecker.Models;
+using ProjectQualityChecker.Services.IServices;
 
 namespace ProjectQualityChecker.Services
 {
-    public class SonarQubeClient
+    public class SonarQubeClient : ISonarQubeClient
     {
         private static readonly string[] metricKeys =
         {
@@ -19,11 +20,16 @@ namespace ProjectQualityChecker.Services
         };
 
         private readonly HttpClient _httpClient;
+
         private readonly string metricKeysParam = string.Join(",", metricKeys);
+        private readonly byte[] _credentials;
 
         public SonarQubeClient(HttpClient httpClient)
         {
             _httpClient = httpClient;
+            _credentials = Encoding.ASCII.GetBytes("admin:adminq");
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Basic", Convert.ToBase64String(_credentials));
         }
 
         public async Task<Root> GetMetricsForFile(string fileKey)
@@ -50,10 +56,11 @@ namespace ProjectQualityChecker.Services
             var httpResponseMessage =
                 await _httpClient.PostAsync("projects/create", new FormUrlEncodedContent(parameters));
 
-            if (httpResponseMessage.StatusCode == HttpStatusCode.BadRequest) return ExistingProject(projectName);
-            
+            if (httpResponseMessage.StatusCode == HttpStatusCode.BadRequest)
+                return ExistingProject(projectName);
+
             var tmp = await httpResponseMessage.Content.ReadAsStringAsync();
-            
+
             return JsonConvert.DeserializeObject<SonarQubeProject>(tmp).Project;
         }
 
@@ -76,9 +83,6 @@ namespace ProjectQualityChecker.Services
                 {"name", tokenName}
             };
 
-            var credentials = Encoding.ASCII.GetBytes("admin:admin");
-            _httpClient.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Basic", Convert.ToBase64String(credentials));
 
             var httpResponseMessage =
                 await _httpClient.PostAsync("user_tokens/generate", new FormUrlEncodedContent(parameters));
@@ -102,9 +106,6 @@ namespace ProjectQualityChecker.Services
                 {"name", tokenName}
             };
 
-            var credentials = Encoding.ASCII.GetBytes("admin:admin");
-            _httpClient.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Basic", Convert.ToBase64String(credentials));
             var httpResponseMessage =
                 await _httpClient.PostAsync("user_tokens/revoke", new FormUrlEncodedContent(parameters));
             return httpResponseMessage.StatusCode;
@@ -112,7 +113,7 @@ namespace ProjectQualityChecker.Services
 
         private Project ExistingProject(string projectKey)
         {
-            return new Project {Key = projectKey};
+            return new Project {Key = projectKey, Name = projectKey};
         }
     }
 }

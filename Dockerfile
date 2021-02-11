@@ -1,8 +1,11 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1-bionic  as build
+FROM mcr.microsoft.com/dotnet/sdk:5.0-focal  as build
 EXPOSE 5000/tcp
 SHELL ["/bin/bash", "-c"]
 
-RUN apt-get update && apt-get install -y openjdk-8-jdk-headless
+
+#RUN echo "deb http://deb.debian.org/debian/ sid main" >> /etc/apt/sources.list
+RUN apt-get update
+RUN apt-get install -y openjdk-8-jdk
 RUN dotnet tool install --global dotnet-sonarscanner --version 4.8.0
 
 ENV SONAR_SCANNER_VERSION 4.5.0.2216

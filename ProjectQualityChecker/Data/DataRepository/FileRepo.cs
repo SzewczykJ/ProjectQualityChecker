@@ -16,6 +16,12 @@ namespace ProjectQualityChecker.Data.DataRepository
             _context = context;
         }
 
+        public File FindById(int id)
+        {
+            return _context.Files
+                .Select(f => f).FirstOrDefault(f => f.FileId.Equals(id));
+        }
+
         public int Add(File file)
         {
             _context.Files.Add(file);

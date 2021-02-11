@@ -1,18 +1,21 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using LibGit2Sharp;
 using ProjectQualityChecker.Data.IDataRepository;
+using ProjectQualityChecker.Services.IServices;
 using Repository = ProjectQualityChecker.Data.Database.Repository;
 
 namespace ProjectQualityChecker.Services
 {
-    public class RepositoryService
+    public class RepositoryService : IRepositoryService
     {
         public enum RepositoryType
         {
             MAVEN,
             MS,
+            GRADLE,
             OTHER
         }
 
@@ -56,17 +59,24 @@ namespace ProjectQualityChecker.Services
                 return new LibGit2Sharp.Repository(LibGit2Sharp.Repository.Clone(repositoryUrl,
                     CreatePathToRepository(repositoryUrl)));
             }
-            catch (NameConflictException)
+            catch (Exception ex)
             {
-                DeleteRepository(CreatePathToRepository(repositoryUrl));
-                return new LibGit2Sharp.Repository(LibGit2Sharp.Repository.Clone(repositoryUrl,
-                    CreatePathToRepository(repositoryUrl)));
+                if (ex is NameConflictException)
+                {
+                    DeleteRepositoryDirectory(CreatePathToRepository(repositoryUrl));
+                    return new LibGit2Sharp.Repository(LibGit2Sharp.Repository.Clone(repositoryUrl,
+                        CreatePathToRepository(repositoryUrl)));
+                }
+
+                throw new ApplicationException(
+                    "Can not clone the repository. Check is it set to the public repository and try again. ", ex);
             }
         }
 
-        public void DeleteRepository(string path)
+
+        public void DeleteRepositoryDirectory(string path)
         {
-            foreach (var subDir in Directory.EnumerateDirectories(path)) DeleteRepository(subDir);
+            foreach (var subDir in Directory.EnumerateDirectories(path)) DeleteRepositoryDirectory(subDir);
             foreach (var fileName in Directory.EnumerateFiles(path))
             {
                 var fileInfo = new FileInfo(fileName);
@@ -82,21 +92,26 @@ namespace ProjectQualityChecker.Services
             foreach (var file in Directory.EnumerateFiles(path))
                 if (file.ToLower().Contains("pom.xml"))
                     return RepositoryType.MAVEN;
-                else if (file.ToLower().Contains(".sln")) return RepositoryType.MS;
+                else if (file.ToLower().Contains(".gradle"))
+                    return RepositoryType.GRADLE;
+                else if (file.ToLower().Contains(".sln"))
+                    return RepositoryType.MS;
 
             return RepositoryType.OTHER;
         }
 
         public string GetUserNameFromRepositoryUrl(string repositoryUrl)
         {
+            //example url => https://github.com/github/training-kit/ 
             var split = repositoryUrl.Split("/");
-            return split[split.Length - 2];
+            return split[3];
         }
 
-        public string GetNameFromRepositoryUrl(string repositoryUrl)
+        public string GetRepositoryNameFromRepositoryUrl(string repositoryUrl)
         {
+            //example url => https://github.com/github/training-kit/ 
             var split = repositoryUrl.Split("/");
-            return split[split.Length - 1];
+            return split[4];
         }
 
         public string CreatePathToRepository(string repositoryURL)
@@ -105,12 +120,6 @@ namespace ProjectQualityChecker.Services
             var repositoryName = GetRepositoryNameFromRepositoryUrl(repositoryURL);
 
             return $"downloadedRepositories/{userName}/{repositoryName}";
-        }
-
-        public string GetRepositoryNameFromRepositoryUrl(string repositoryUrl)
-        {
-            var split = repositoryUrl.Split("/");
-            return split[split.Length - 1];
         }
     }
 }

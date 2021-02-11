@@ -6,7 +6,7 @@
 
 <link src="~/lib/sweetalert2-10.13/dist/sweetalert2.css" rel="stylesheet"/>
 <div>
-    <form id="form" method="post"  autocomplete="off">
+    <form id="form" method="post" autocomplete="off">
         <div class="form-group">
             <label for="name">Project name</label>
             <input type="text" class="form-control" id="name" name="name" placeholder="Project name" required/>
@@ -64,9 +64,10 @@
                               );
                          },
                         error:function (response){
+                            //  TODO: use response message to inform user about occured error 
                             Swal.fire(
                               "Can not download repository",
-                              "Please try again or check if the repository is set to public",
+                              "Check is it set to the public repository and try again.",
                               'error'
                             );
                         }

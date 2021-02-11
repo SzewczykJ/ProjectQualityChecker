@@ -1,22 +1,19 @@
 ﻿using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using ProjectQualityChecker.Data.Database;
 using ProjectQualityChecker.Models;
-using ProjectQualityChecker.Services;
+using ProjectQualityChecker.Services.IServices;
 
 namespace ProjectQualityChecker.Controllers
 {
     public class HomeController : Controller
     {
-      
-        private readonly SonarQubeClient _sonarQubeClient;
-        private readonly SonarQubeScanner _sonarQubeScanner;
+        private readonly ISonarQubeClient _sonarQubeClient;
+        private readonly ISonarQubeScanner _sonarQubeScanner;
 
-        public HomeController(SonarQubeClient sonarQubeClient, SonarQubeScanner qubeScanner)
+        public HomeController(ISonarQubeClient sonarQubeClient, ISonarQubeScanner qubeScanner)
         {
-     
             _sonarQubeClient = sonarQubeClient;
             _sonarQubeScanner = qubeScanner;
         }
@@ -34,15 +31,15 @@ namespace ProjectQualityChecker.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View(new ErrorViewModel {RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier});
         }
 
-        public async Task Test([FromForm] string name,[FromForm] string url)
+        public async Task Test([FromForm] string name, [FromForm] string url)
         {
-            var repo = new Repository()
-            {Name = name,
+            var repo = new Repository
+            {
+                Name = name,
                 Url = url
-                
             };
             await _sonarQubeScanner.ScanRepositoryAsync(repo);
         }
