@@ -1,7 +1,5 @@
 ﻿using System.Diagnostics;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using ProjectQualityChecker.Data.Database;
 using ProjectQualityChecker.Models;
 using ProjectQualityChecker.Services.IServices;
 
@@ -32,16 +30,6 @@ namespace ProjectQualityChecker.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel {RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier});
-        }
-
-        public async Task Test([FromForm] string name, [FromForm] string url)
-        {
-            var repo = new Repository
-            {
-                Name = name,
-                Url = url
-            };
-            await _sonarQubeScanner.ScanRepositoryAsync(repo);
         }
     }
 }

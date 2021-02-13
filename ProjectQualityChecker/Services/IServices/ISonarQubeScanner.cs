@@ -10,8 +10,7 @@ namespace ProjectQualityChecker.Services.IServices
         Task ScanRepositoryAsync(Repository repository, string branch = null);
 
         Task ScanAllCommitsFromRepositoryAsync(Commit[] commits,
-            Repository sonarRepository, string repositoryURL, IRepository repository, string branchName,
-            string path = null);
+            Repository sonarRepository, string repositoryURL, IRepository repository, string branchName);
 
         int CheckoutCommit(string commitSHA, string workingDirectory);
     }

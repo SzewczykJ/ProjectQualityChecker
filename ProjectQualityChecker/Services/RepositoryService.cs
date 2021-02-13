@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 using LibGit2Sharp;
 using ProjectQualityChecker.Data.IDataRepository;
+using ProjectQualityChecker.Models;
 using ProjectQualityChecker.Services.IServices;
 using Repository = ProjectQualityChecker.Data.Database.Repository;
 
@@ -36,10 +37,24 @@ namespace ProjectQualityChecker.Services
             return _repositoryRepo.Delete(repository);
         }
 
-        public int Create(Repository newRepository)
+        public Repository Create(RepositoryForm repositoryForm)
         {
-            var result = _repositoryRepo.Add(newRepository);
-            return result;
+            if (repositoryForm == null) return null;
+            var repository = new Repository
+            {
+                Name = repositoryForm.Name,
+                Url = repositoryForm.Url,
+                FullName = GetRepositoryNameFromRepositoryUrl(repositoryForm.Url)
+            };
+
+            Add(repository);
+
+            return repository;
+        }
+
+        public int Add(Repository repository)
+        {
+            return _repositoryRepo.Add(repository);
         }
 
         public Repository GetById(int repositoryId)

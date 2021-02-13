@@ -32,13 +32,12 @@ namespace ProjectQualityChecker.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
 
+            Repository repository = _repositoryService.Create(repositoryForm);
 
-            // TODO: validate and clear text from special chart // remove '/tree/' from link 
-            var repo = new Repository {Name = repositoryForm.Name, Url = repositoryForm.Url};
-            if (_repositoryService.Create(repo) > 0)
+            if (repository != null)
                 try
                 {
-                    await _sonarQubeScanner.ScanRepositoryAsync(repo);
+                    await _sonarQubeScanner.ScanRepositoryAsync(repository);
                 }
                 catch (ApplicationException applicationException)
                 {

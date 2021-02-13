@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using LibGit2Sharp;
+using ProjectQualityChecker.Models;
 using Repository = ProjectQualityChecker.Data.Database.Repository;
 
 namespace ProjectQualityChecker.Services.IServices
@@ -9,7 +10,8 @@ namespace ProjectQualityChecker.Services.IServices
     {
         int Update(Repository repository);
         int Delete(Repository repository);
-        int Create(Repository newRepository);
+        int Add(Repository repository);
+        Repository Create(RepositoryForm repositoryForm);
         Repository GetById(int repositoryId);
         Task<List<Repository>> GetAllAsync();
         IRepository CloneRepository(string repositoryUrl);

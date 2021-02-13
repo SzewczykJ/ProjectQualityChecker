@@ -5,12 +5,12 @@ using ProjectQualityChecker.Services.IServices;
 
 namespace ProjectQualityChecker.Services
 {
-    public class ResultServices : IResultServices
+    public class ResultService : IResultService
     {
         private readonly ICommitRepo _commitRepository;
         private readonly IMetricRepo _metricRepository;
 
-        public ResultServices(ICommitRepo commitRepo, IMetricRepo metricsRepo)
+        public ResultService(ICommitRepo commitRepo, IMetricRepo metricsRepo)
         {
             _commitRepository = commitRepo;
             _metricRepository = metricsRepo;

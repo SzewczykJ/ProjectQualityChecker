@@ -8,11 +8,11 @@ namespace ProjectQualityChecker.Controllers
     public class ResultController : Controller
     {
         private readonly IRepositoryService _repositoryService;
-        private readonly IResultServices _resultServices;
+        private readonly IResultService _resultService;
 
-        public ResultController(IResultServices resultServices, IRepositoryService repositoryService)
+        public ResultController(IResultService resultServices, IRepositoryService repositoryService)
         {
-            _resultServices = resultServices;
+            _resultService = resultServices;
             _repositoryService = repositoryService;
         }
 
@@ -28,7 +28,7 @@ namespace ProjectQualityChecker.Controllers
         {
             if (repositoryId <= 0) return RedirectToAction("Index");
 
-            var commits = _resultServices.Summary(repositoryId);
+            var commits = _resultService.Summary(repositoryId);
             return Json(commits);
         }
     }

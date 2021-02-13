@@ -2,7 +2,7 @@
 
 namespace ProjectQualityChecker.Services.IServices
 {
-    public interface IResultServices
+    public interface IResultService
     {
         CommitSummaryList Summary(int repositoryId);
     }

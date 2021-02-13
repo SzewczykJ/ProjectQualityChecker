@@ -7,7 +7,6 @@ using LibGit2Sharp;
 using ProjectQualityChecker.Data.IDataRepository;
 using ProjectQualityChecker.Models;
 using ProjectQualityChecker.Services.IServices;
-using Commit = LibGit2Sharp.Commit;
 using Repository = ProjectQualityChecker.Data.Database.Repository;
 
 namespace ProjectQualityChecker.Services
@@ -41,8 +40,6 @@ namespace ProjectQualityChecker.Services
         public async Task ScanRepositoryAsync(Repository repository, string branch)
         {
             var repositoryURL = repository.Url;
-            repository.FullName = _repositoryService.GetRepositoryNameFromRepositoryUrl(repositoryURL);
-            _repositoryService.Update(repository);
 
             using (var clonedRepository = _repositoryService.CloneRepository(repositoryURL))
             {
@@ -58,19 +55,16 @@ namespace ProjectQualityChecker.Services
             _repositoryService.DeleteRepositoryDirectory(_repositoryService.CreatePathToRepository(repositoryURL));
         }
 
-        public async Task ScanAllCommitsFromRepositoryAsync(Commit[] commits,
-            Repository sonarRepository, string repositoryURL, IRepository repository, string branchName,
-            string path = null)
+        public async Task ScanAllCommitsFromRepositoryAsync(LibGit2Sharp.Commit[] commits,
+            Repository sonarRepository, string repositoryURL, LibGit2Sharp.IRepository repository, string branchName
+        )
         {
             var userName = _repositoryService.GetUserNameFromRepositoryUrl(repositoryURL);
             var repositoryName = _repositoryService.GetRepositoryNameFromRepositoryUrl(repositoryURL);
-
+            var path = _repositoryService.CreatePathToRepository(repositoryURL);
+            var repositoryType = _repositoryService.GetRepositoryType(path);
             var project = await _sonarQubeClient.CreateProject($"{userName}-{repositoryName}");
             var token = await _sonarQubeClient.GenerateToken($"{userName}-{repositoryName}");
-
-            if (path == null) path = _repositoryService.CreatePathToRepository(repositoryURL);
-
-            var repositoryType = _repositoryService.GetRepositoryType(path);
 
             // var currentBranch = _branchRepo.GetByName(branchName);
 
@@ -83,20 +77,18 @@ namespace ProjectQualityChecker.Services
                 var actualCommit = commits[i];
 
                 var developerOfCommit = _developerService.CreateDeveloperFromGitCommit(actualCommit);
-                var commitToSave =
-                    _commitService.GenerateCommitFromGitCommitInfo(actualCommit, sonarRepository, developerOfCommit);
+                var commitToSave = _commitService.GenerateCommitFromGitCommitInfo(actualCommit, sonarRepository, developerOfCommit);
                 _commitService.Update(commitToSave);
 
                 Dictionary<string, CommitChanges> commitChanges;
                 if (i == commits.Length - 1)
                     commitChanges = GetChangedFilesFromCommit(null, actualCommit.Tree, repository);
                 else
-                    commitChanges = GetChangedFilesFromCommit(actualCommit.Parents.First().Tree, actualCommit.Tree,
-                        repository);
+                    commitChanges = GetChangedFilesFromCommit(actualCommit.Parents.First().Tree, actualCommit.Tree, repository);
 
                 CheckoutCommit(actualCommit.Sha, path);
 
-                ScanRepository(project, token, path, repositoryType, string.Join(",", commitChanges.Keys));
+                RunScanner(project, token, path, repositoryType, string.Join(",", commitChanges.Keys));
 
                 await _sonarQubeService.SaveDataFromRepositoryAsync(project.Key, commitToSave,
                     commitChanges);
@@ -126,7 +118,7 @@ namespace ProjectQualityChecker.Services
         }
 
 
-        private void ScanRepository(Project createProject, ProjectToken createToken, string path,
+        private void RunScanner(Project createProject, ProjectToken createToken, string path,
             RepositoryService.RepositoryType repositoryType, string changedFiles)
         {
             switch (repositoryType)

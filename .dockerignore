@@ -1,17 +1,20 @@
 */bin
 */obj
-.dockerignore // Docker files
+.dockerignore 
 .env
-.git // Git files
-.gitignore // Git files
-.gitattributes // Git files
-.vs // IDE files
-.vscode // IDE files
+.git 
+.gitignore 
+.gitattributes 
+.vs
+.vscode 
+.idea
 **/.toolstarget
-.idea // IDE files
-**/Samples // Additional files
 build
 Docker // Docker scripts and docker-compose files (in this example in 'Docker' directory, in context root level)
 **/Dockerfile // Docker files
-**/docker-compose // Docker files
+docker-compose*
 *Test*
+.Debug
+.sonarqube
+.Postgres_Sonar
+

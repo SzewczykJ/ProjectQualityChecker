@@ -16,10 +16,7 @@ namespace ProjectQualityChecker
 {
     public class Startup
     {
-        public static readonly ILoggerFactory MyLoggerFactory = LoggerFactory.Create(builder =>
-        {
-            builder.AddConsole();
-        });
+        public static readonly ILoggerFactory MyLoggerFactory = LoggerFactory.Create(builder => { builder.AddConsole(); });
 
         public Startup(IWebHostEnvironment env)
         {
@@ -55,7 +52,7 @@ namespace ProjectQualityChecker
             services.AddScoped<ISonarQubeScanner, SonarQubeScanner>();
             services.AddScoped<ISonarQubeService, SonarQubeService>();
             services.AddScoped<IRepositoryService, RepositoryService>();
-            services.AddScoped<IResultServices, ResultServices>();
+            services.AddScoped<IResultService, ResultService>();
             services.AddScoped<ICommitService, CommitService>();
             services.AddScoped<IDeveloperService, DeveloperService>();
 
