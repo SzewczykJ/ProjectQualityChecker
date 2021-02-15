@@ -2,20 +2,20 @@ version: '3.7'
 
 services:
 
-#  backend:
-    # container_name: 'PQC'
-    # build: .
-    # ports:
-    #  - "5000:5000"
-    # depends_on:
-    #  - "postgres_pqc"
-    #  - "sonarqube"
-    # environment:
-    #   ASPNETCORE_ENVIRONMENT: Development
-    #   ASPNETCORE_URLS: http://+:5000
-    # restart: unless-stopped
-    # networks:
-    #   - backend-network
+  # backend:
+  #   container_name: 'PQC'
+  #   build: .
+  #   ports:
+  #    - "5000:5000"
+  #   depends_on:
+  #    - "postgres_pqc"
+  #    - "sonarqube"
+  #   environment:
+  #     ASPNETCORE_ENVIRONMENT: Development
+  #     ASPNETCORE_URLS: http://+:5000
+  #   restart: unless-stopped
+  #   networks:
+  #     - backend-network
 
   postgres_pqc:
     container_name: 'magisterka'
@@ -43,5 +43,5 @@ services:
 
 networks:
   backend-network:
+    name: backend
     driver: bridge
-    b152059aabc7f1eec8c5494989b34b20b1222dd6

@@ -1,21 +1,11 @@
 ﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using ProjectQualityChecker.Models;
-using ProjectQualityChecker.Services.IServices;
 
 namespace ProjectQualityChecker.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ISonarQubeClient _sonarQubeClient;
-        private readonly ISonarQubeScanner _sonarQubeScanner;
-
-        public HomeController(ISonarQubeClient sonarQubeClient, ISonarQubeScanner qubeScanner)
-        {
-            _sonarQubeClient = sonarQubeClient;
-            _sonarQubeScanner = qubeScanner;
-        }
-
         public IActionResult Index()
         {
             return View();

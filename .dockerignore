@@ -13,7 +13,6 @@ build
 Docker // Docker scripts and docker-compose files (in this example in 'Docker' directory, in context root level)
 **/Dockerfile // Docker files
 docker-compose*
-*Test*
 .Debug
 .sonarqube
 .Postgres_Sonar
