@@ -8,7 +8,7 @@ using ProjectQualityChecker.Models;
 using ProjectQualityChecker.Services.IServices;
 using Xunit;
 
-namespace Tests
+namespace Tests.UnitTests
 {
     public class AnalysisControllerTest
     {

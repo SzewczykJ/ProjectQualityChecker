@@ -8,7 +8,7 @@ using ProjectQualityChecker.Models.Result;
 using ProjectQualityChecker.Services.IServices;
 using Xunit;
 
-namespace Tests
+namespace Tests.UnitTests
 {
     public class ResultControllerTest
     {
@@ -18,10 +18,8 @@ namespace Tests
             var mock1 = new Mock<IResultService>();
             var mock2 = new Mock<IRepositoryService>();
 
-
             mock2.Setup(r => r.GetAllAsync()).Returns(Task.FromResult<List<Repository>>(new List<Repository>()));
             var controller = new ResultController(mock1.Object, mock2.Object);
-
 
             var result = controller.Index();
 
@@ -37,9 +35,7 @@ namespace Tests
             var repositoryId = 1;
             mock1.Setup(r => r.Summary(repositoryId)).Returns(new CommitSummaryList {CommitList = new List<CommitSummary>()});
 
-
             var controller = new ResultController(mock1.Object, mock2.Object);
-
 
             var result = controller.GetResult(repositoryId);
 

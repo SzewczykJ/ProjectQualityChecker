@@ -13,12 +13,12 @@ using Xunit;
 using Commit = ProjectQualityChecker.Data.Database.Commit;
 using Repository = ProjectQualityChecker.Data.Database.Repository;
 
-namespace Tests
+namespace Tests.UnitTests
 {
     public class CommitServiceTest : BaseForTest
     {
         [Fact]
-        public async void TestAddingNewCommit()
+        public void TestAddingNewCommit()
         {
             var commitRepo = new Mock<CommitRepo>(GetDbContext());
             var commitService = new CommitService(commitRepo.Object);
@@ -35,7 +35,7 @@ namespace Tests
         }
 
         [Fact]
-        public async void TestEditingCommit()
+        public void TestEditingCommit()
         {
             var dbContext = GivenCommitRepository();
             var commitRepo = new Mock<CommitRepo>(dbContext);
@@ -66,7 +66,7 @@ namespace Tests
         }
 
         [Fact]
-        public async void TestRemovingCommit()
+        public void TestRemovingCommit()
         {
             var dbContext = GivenCommitRepository();
             var commitRepo = new Mock<CommitRepo>(dbContext);
@@ -80,7 +80,7 @@ namespace Tests
         }
 
         [Fact]
-        public async void TestGetCommitSummaries()
+        public void TestGetCommitSummaries()
         {
             var dbContext = GivenCommitRepsoitoryContextIncludedRelatedData();
             var commitRepo = new Mock<CommitRepo>(dbContext);
@@ -96,7 +96,7 @@ namespace Tests
         }
 
         [Fact]
-        public async void TestGenerateCommitFromGitCommitInfo()
+        public void TestGenerateCommitFromGitCommitInfo()
         {
             Mock<ICommitRepo> mockCommitRepo = new Mock<ICommitRepo>();
             Mock<LibGit2Sharp.Commit> mockedCommit = new Mock<LibGit2Sharp.Commit>();

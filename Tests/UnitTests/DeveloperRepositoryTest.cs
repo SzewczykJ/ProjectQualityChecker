@@ -9,7 +9,7 @@ using ProjectQualityChecker.Data.DataRepository;
 using ProjectQualityChecker.Services;
 using Xunit;
 
-namespace Tests
+namespace Tests.UnitTests
 {
     public class DeveloperRepositoryTest : BaseForTest
     {

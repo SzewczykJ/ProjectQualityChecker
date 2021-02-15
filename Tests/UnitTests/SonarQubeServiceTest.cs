@@ -8,7 +8,7 @@ using ProjectQualityChecker.Services.IServices;
 using Xunit;
 using Commit = ProjectQualityChecker.Data.Database.Commit;
 
-namespace Tests
+namespace Tests.UnitTests
 {
     public class SonarQubeServiceTest : BaseForTest
     {

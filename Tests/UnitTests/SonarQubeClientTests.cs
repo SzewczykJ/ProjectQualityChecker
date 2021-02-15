@@ -3,12 +3,12 @@ using System.Threading.Tasks;
 using ProjectQualityChecker.Services;
 using Xunit;
 
-namespace Tests
+namespace Tests.UnitTests
 {
     public class SonarQubeClientTests : BaseForTest
     {
         [Fact]
-        public async Task TestCreateProject_SonarQube_API_Call()
+        public async Task CreateProject_SonarQube_API_CallTest()
         {
             var sonarQubeClient = new SonarQubeClient(GivenHttpClient());
             var projectName = "test_project_name";
@@ -20,9 +20,9 @@ namespace Tests
         }
 
         [Fact]
-        public async void TestDeleteProject_SonarQube_API_Call()
+        public async void DeleteProject_SonarQube_API_CallTest()
         {
-            await TestCreateProject_SonarQube_API_Call();
+            await CreateProject_SonarQube_API_CallTest();
             var sonarQubeClient = new SonarQubeClient(GivenHttpClient());
             var projectName = "test_project_name";
 
@@ -32,7 +32,7 @@ namespace Tests
         }
 
         [Fact]
-        public async void TestGenerateToken_ReturnTokenToProject()
+        public async void GenerateToken_ReturnTokenToProjectTest()
         {
             var sonarQubeClient = new SonarQubeClient(GivenHttpClient());
             var tokenName = "test_token";
@@ -44,7 +44,7 @@ namespace Tests
         }
 
         [Fact]
-        public async void TestRevokeProjectToken_ReturnNoContentHTTPStatus()
+        public async void RevokeProjectToken_ReturnNoContentHTTPStatusTest()
         {
             var sonarQubeClient = new SonarQubeClient(GivenHttpClient());
             var tokenName = "test_token";

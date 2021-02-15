@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using ProjectQualityChecker.Data;
 using ProjectQualityChecker.Models;
 
-namespace Tests
+namespace Tests.UnitTests
 {
     public abstract class BaseForTest
     {
