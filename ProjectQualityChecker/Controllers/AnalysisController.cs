@@ -34,15 +34,14 @@ namespace ProjectQualityChecker.Controllers
 
             Repository repository = _repositoryService.Create(repositoryForm);
 
-            if (repository != null)
-                try
-                {
-                    await _sonarQubeScanner.ScanRepositoryAsync(repository);
-                }
-                catch (ApplicationException applicationException)
-                {
-                    return BadRequest(applicationException.Message);
-                }
+            try
+            {
+                await _sonarQubeScanner.ScanRepositoryAsync(repository);
+            }
+            catch (ApplicationException applicationException)
+            {
+                return BadRequest(applicationException.Message);
+            }
 
             return Ok();
         }

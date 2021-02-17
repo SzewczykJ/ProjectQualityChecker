@@ -10,7 +10,6 @@ namespace Tests.WebsiteTests
         protected readonly string _baseAppUrl = "http://pqc-debug:5000/";
 
         // protected readonly string _baseAppUrl = "http://localhost:5000/";
-        //protected readonly string _seleniumUrl = "http://selenium:4444/wd/hub/";
         protected readonly string _seleniumUrl = "http://localhost:4444/wd/hub/";
 
         public IWebDriver GetDriver()
@@ -18,6 +17,7 @@ namespace Tests.WebsiteTests
             ChromeOptions options = new ChromeOptions();
             options.AddAdditionalOption("version", "latest");
             options.AddAdditionalOption("platform", "WIN10");
+            options.AddArgument("no-sandbox");
 
             IWebDriver driver = new RemoteWebDriver(new Uri(_seleniumUrl), options.ToCapabilities());
             return driver;

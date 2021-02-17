@@ -7,9 +7,10 @@ namespace ProjectQualityChecker.Data.Database
     public class Commit
     {
         [Key] public int CommitId { get; set; }
-
+#nullable enable
         public string? Sha { get; set; }
         public string? Message { get; set; }
+#nullable restore
         public DateTime Date { get; set; }
 
         [Required] public Developer Developer { get; set; }

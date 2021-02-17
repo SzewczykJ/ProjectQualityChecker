@@ -7,6 +7,7 @@
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <SonarQubeTestProject>false</SonarQubeTestProject>
         <ProjectGuid>{C2AF6D41-3EC2-44E5-BEBC-0B9D3AAA369A}</ProjectGuid>
+        <NoWarn>CS8604</NoWarn>
     </PropertyGroup>
     <ItemGroup>
         <Folder Include="wwwroot\" />

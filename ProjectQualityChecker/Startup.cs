@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using ProjectQualityChecker.Data;
 using ProjectQualityChecker.Data.DataRepository;
 using ProjectQualityChecker.Data.IDataRepository;
@@ -16,8 +15,6 @@ namespace ProjectQualityChecker
 {
     public class Startup
     {
-        public static readonly ILoggerFactory MyLoggerFactory = LoggerFactory.Create(builder => { builder.AddConsole(); });
-
         public Startup(IWebHostEnvironment env)
         {
             var builder = new ConfigurationBuilder()
@@ -40,11 +37,7 @@ namespace ProjectQualityChecker
                 o.JsonSerializerOptions.DictionaryKeyPolicy = null;
             });
 
-            services.AddDbContext<AppDbContext>(options =>
-            {
-                options.UseLoggerFactory(MyLoggerFactory); //DEVELOPMENT ONLY
-                options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")).EnableSensitiveDataLogging();
-            });
+            services.AddDbContext<AppDbContext>(options => { options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")); });
 
             services.AddHttpClient<ISonarQubeClient, SonarQubeClient>(client =>
                 client.BaseAddress = new Uri(Configuration["SonarQube_API"]));

@@ -37,13 +37,13 @@ namespace ProjectQualityChecker.Services
             _branchRepo = branchRepo;
         }
 
-        public async Task ScanRepositoryAsync(Repository repository, string branch)
+        public async Task ScanRepositoryAsync(Repository repository, string branch = null)
         {
             var repositoryURL = repository.Url;
 
             using (var clonedRepository = _repositoryService.CloneRepository(repositoryURL))
             {
-                if (branch != null)
+                if (branch != String.Empty)
                     Commands.Checkout(clonedRepository,
                         clonedRepository.Branches.FirstOrDefault(b => b.FriendlyName.Equals(branch)));
                 var branchName = clonedRepository.Head.FriendlyName;

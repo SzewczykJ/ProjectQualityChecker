@@ -9,8 +9,9 @@ namespace ProjectQualityChecker.Data.Database
         [Required] public string Username { get; set; }
 
         [Required] public string Email { get; set; }
-
+#nullable enable
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
+#nullable restore
     }
 }

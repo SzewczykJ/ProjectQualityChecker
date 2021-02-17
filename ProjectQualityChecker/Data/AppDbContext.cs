@@ -18,9 +18,9 @@ namespace ProjectQualityChecker.Data
         public DbSet<Metric> Metrics { get; set; }
         public DbSet<Branch> Branches { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder builder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(builder);
+            base.OnModelCreating(modelBuilder);
         }
     }
 }

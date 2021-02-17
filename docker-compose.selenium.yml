@@ -3,13 +3,14 @@ services:
 
   hub:
     image: selenium/hub
+    container_name: selenium-hub
     ports:
       - "4444:4444"
 
     environment:
       GRID_MAX_SESSION: 16
-      GRID_BROWSER_TIMEOUT: 3000
-      GRID_TIMEOUT: 3000
+      GRID_BROWSER_TIMEOUT: 360000
+      GRID_TIMEOUT: 360000
     networks:
       - backend-network
 
