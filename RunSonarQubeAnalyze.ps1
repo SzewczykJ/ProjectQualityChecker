@@ -4,7 +4,7 @@ Remove-Item -Path $scriptPath\TestResults\* -include *.trx
 Remove-Item -Path $scriptPath\TestResults\* -include *.opencover.xml
 
 
-dotnet sonarscanner begin  /k:"pqc" `
+dotnet sonarscanner begin  /k:"PQC" `
     /d:sonar.cs.opencover.reportsPaths="./TestResults/coverage.opencover.xml" `
     /d:sonar.cs.vstest.reportsPaths="./TestResults/*.trx" `
     /d:sonar.host.url="http://localhost:8000" `

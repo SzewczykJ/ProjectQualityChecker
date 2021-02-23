@@ -7,7 +7,7 @@
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <SonarQubeTestProject>false</SonarQubeTestProject>
         <ProjectGuid>{C2AF6D41-3EC2-44E5-BEBC-0B9D3AAA369A}</ProjectGuid>
-        <NoWarn>CS8604</NoWarn>
+
     </PropertyGroup>
     <ItemGroup>
         <Folder Include="wwwroot\" />
@@ -27,9 +27,12 @@
         <PackageReference Include="Newtonsoft.Json" Version="12.0.3"/>
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.2"/>
     </ItemGroup>
- 
+
     <ItemGroup>
         <Content Update="appsettings.Development.json">
+            <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+        </Content>
+        <Content Update="appsettings.Production.json">
             <CopyToPublishDirectory>Always</CopyToPublishDirectory>
         </Content>
     </ItemGroup>
