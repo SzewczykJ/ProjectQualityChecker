@@ -15,8 +15,17 @@ namespace ProjectQualityChecker.Services
     {
         private static readonly string[] metricKeys =
         {
-            "complexity", "cognitive_complexity", "duplicated_lines", "code_smells", "new_code_smells", "comment_lines",
-            "comment_lines_density", "ncloc", "statements", "branch_coverage", "line_coverage"
+            "complexity",
+            "cognitive_complexity",
+            "duplicated_lines",
+            "code_smells",
+            "new_code_smells",
+            "comment_lines",
+            "comment_lines_density",
+            "ncloc",
+            "statements",
+            "branch_coverage",
+            "line_coverage"
         };
 
         private readonly HttpClient _httpClient;

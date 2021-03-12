@@ -15,13 +15,14 @@ namespace ProjectQualityChecker.Services
             _commitRepo = commitRepo;
         }
 
-        public Commit GenerateCommitFromGitCommitInfo(LibGit2Sharp.Commit commit, Repository repository,
+        public Commit GenerateCommitFromGitCommitInfo(LibGit2Sharp.Commit commit,
+            Repository repository,
             Developer developer)
         {
             return new Commit
             {
                 //Branch = currentBranch,
-                Message = commit.Message,
+                Message = commit.MessageShort,
                 Repository = repository,
                 Sha = commit.Sha,
                 Developer = developer,

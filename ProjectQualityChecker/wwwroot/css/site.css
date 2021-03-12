@@ -1,6 +1,21 @@
 ﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
 for details on configuring this project to bundle and minify static web assets. */
 
+@font-face {
+    font-family: "Roboto";
+    src: url('./fonts/Roboto-Medium.ttf');
+}
+
+@font-face {
+    font-family: "Lato";
+    src: url('./fonts/Lato-Regular.ttf');
+}
+
+@font-face {
+    font-family: "Montserrat";
+    src: url('./fonts/Montserrat-Medium.ttf');
+}
+
 a.navbar-brand {
     white-space: normal;
     text-align: center;
@@ -73,9 +88,9 @@ body {
     line-height: 60px; /* Vertically center the text there */
 }
 
+/* ------------ Charts styles ----------- */
 .chartWrapper {
     position: relative;
-
 }
 
 .chartWrapper > canvas {
@@ -86,13 +101,12 @@ body {
 }
 
 .chartAreaWrapper {
-    overflow-x: scroll;
-    position: relative;
     width: 100%;
+    overflow-x: scroll;
 }
 
 .chartAreaWrapper2 {
 
-    position: relative;
-    height: 500px;
 }
+
+/* ----------End chart styles --------*/

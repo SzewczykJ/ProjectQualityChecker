@@ -25,7 +25,6 @@ namespace ProjectQualityChecker.Controllers
             return View();
         }
 
-
         [HttpPost("Analysis")]
         public async Task<IActionResult> Analysis(RepositoryForm repositoryForm)
         {
@@ -36,7 +35,7 @@ namespace ProjectQualityChecker.Controllers
 
             try
             {
-                await _sonarQubeScanner.ScanRepositoryAsync(repository);
+                await _sonarQubeScanner.ScanRepositoryAsync(repository, "develop");
             }
             catch (ApplicationException applicationException)
             {

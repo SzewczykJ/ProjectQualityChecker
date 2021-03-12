@@ -11,6 +11,7 @@
     </PropertyGroup>
     <ItemGroup>
         <Folder Include="wwwroot\" />
+        <Folder Include="wwwroot\css\fonts"/>
     </ItemGroup>
 
     <ItemGroup>

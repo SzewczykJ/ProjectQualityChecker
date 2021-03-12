@@ -67,12 +67,25 @@ namespace ProjectQualityChecker.Services
             return await _repositoryRepo.GetAllAsync();
         }
 
-        public IRepository CloneRepository(string repositoryUrl)
+        public IRepository CloneRepository(string repositoryUrl, string branch = null)
         {
             try
             {
-                return new LibGit2Sharp.Repository(LibGit2Sharp.Repository.Clone(repositoryUrl,
-                    CreatePathToRepository(repositoryUrl)));
+                if (branch != null && branch != String.Empty)
+                {
+                    return new LibGit2Sharp.Repository(LibGit2Sharp.Repository.Clone(repositoryUrl,
+                        CreatePathToRepository(repositoryUrl),
+                        new CloneOptions()
+                        {
+                            BranchName = branch
+                        })
+                    );
+                }
+                else
+                {
+                    return new LibGit2Sharp.Repository(LibGit2Sharp.Repository.Clone(repositoryUrl,
+                        CreatePathToRepository(repositoryUrl)));
+                }
             }
             catch (Exception ex)
             {

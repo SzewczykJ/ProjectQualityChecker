@@ -14,7 +14,7 @@ namespace ProjectQualityChecker.Services.IServices
         Repository Create(RepositoryForm repositoryForm);
         Repository GetById(int repositoryId);
         Task<List<Repository>> GetAllAsync();
-        IRepository CloneRepository(string repositoryUrl);
+        IRepository CloneRepository(string repositoryUrl, string branch = null);
         void DeleteRepositoryDirectory(string path);
         RepositoryService.RepositoryType GetRepositoryType(string path);
         string GetUserNameFromRepositoryUrl(string repositoryUrl);

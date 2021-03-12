@@ -45,7 +45,7 @@ namespace Tests.UnitTests
             mockSonarQubeClient.Setup(m => m.GenerateToken(It.IsAny<string>())).Returns(GivenCreateToken());
 
             var mockRepository = new Mock<IRepositoryService>();
-            mockRepository.Setup(m => m.CloneRepository(It.IsAny<string>())).Returns(GivenRepository());
+            mockRepository.Setup(m => m.CloneRepository(It.IsAny<string>(), null)).Returns(GivenRepository());
             mockRepository.Setup(m => m.Update(It.IsAny<Repository>()))
                 .Callback<Repository>(r => repositoryRepo.Update(r));
 
@@ -65,8 +65,10 @@ namespace Tests.UnitTests
                 mockDeveloperService.Object,
                 mockBranchRepo.Object);
             mockSonarQubeScanner.CallBase = true;
-            mockSonarQubeScanner.Setup(s => s.ScanAllCommitsFromRepositoryAsync(mockLibGit2SharpIRepository.Object.Commits.ToArray(),
-                It.IsAny<Repository>(), It.IsAny<string>(), mockLibGit2SharpIRepository.Object, It.IsAny<string>())).Returns(Task.CompletedTask);
+            mockSonarQubeScanner.Setup(s => s.ScanAllCommitsFromRepositoryAsync(
+                    mockLibGit2SharpIRepository.Object.Commits.ToArray(),
+                    It.IsAny<Repository>(), It.IsAny<string>(), mockLibGit2SharpIRepository.Object, It.IsAny<string>()))
+                .Returns(Task.CompletedTask);
             return mockSonarQubeScanner.Object;
         }
 

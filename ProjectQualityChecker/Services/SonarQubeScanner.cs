@@ -41,8 +41,9 @@ namespace ProjectQualityChecker.Services
         {
             var repositoryURL = repository.Url;
 
-            using (var clonedRepository = _repositoryService.CloneRepository(repositoryURL))
+            using (var clonedRepository = _repositoryService.CloneRepository(repositoryURL, branch))
             {
+                var x = clonedRepository.Branches[branch];
                 if (branch != String.Empty)
                     Commands.Checkout(clonedRepository,
                         clonedRepository.Branches.FirstOrDefault(b => b.FriendlyName.Equals(branch)));
@@ -52,11 +53,15 @@ namespace ProjectQualityChecker.Services
                     repository, repositoryURL, clonedRepository, branchName);
             }
 
+
             _repositoryService.DeleteRepositoryDirectory(_repositoryService.CreatePathToRepository(repositoryURL));
         }
 
         public async Task ScanAllCommitsFromRepositoryAsync(LibGit2Sharp.Commit[] commits,
-            Repository sonarRepository, string repositoryURL, LibGit2Sharp.IRepository repository, string branchName
+            Repository sonarRepository,
+            string repositoryURL,
+            LibGit2Sharp.IRepository repository,
+            string branchName
         )
         {
             var userName = _repositoryService.GetUserNameFromRepositoryUrl(repositoryURL);
@@ -77,14 +82,16 @@ namespace ProjectQualityChecker.Services
                 var actualCommit = commits[i];
 
                 var developerOfCommit = _developerService.CreateDeveloperFromGitCommit(actualCommit);
-                var commitToSave = _commitService.GenerateCommitFromGitCommitInfo(actualCommit, sonarRepository, developerOfCommit);
+                var commitToSave =
+                    _commitService.GenerateCommitFromGitCommitInfo(actualCommit, sonarRepository, developerOfCommit);
                 _commitService.Update(commitToSave);
 
                 Dictionary<string, CommitChanges> commitChanges;
                 if (i == commits.Length - 1)
                     commitChanges = GetChangedFilesFromCommit(null, actualCommit.Tree, repository);
                 else
-                    commitChanges = GetChangedFilesFromCommit(actualCommit.Parents.First().Tree, actualCommit.Tree, repository);
+                    commitChanges = GetChangedFilesFromCommit(actualCommit.Parents.First().Tree, actualCommit.Tree,
+                        repository);
 
                 CheckoutCommit(actualCommit.Sha, path);
 
@@ -104,7 +111,8 @@ namespace ProjectQualityChecker.Services
             return Execute("git", $"checkout -f {commitSHA}", workingDirectory);
         }
 
-        private Dictionary<string, CommitChanges> GetChangedFilesFromCommit(Tree oldTree, Tree newTree,
+        private Dictionary<string, CommitChanges> GetChangedFilesFromCommit(Tree oldTree,
+            Tree newTree,
             IRepository repository)
         {
             var commitChanges = new Dictionary<string, CommitChanges>();
@@ -118,8 +126,11 @@ namespace ProjectQualityChecker.Services
         }
 
 
-        private void RunScanner(Project createProject, ProjectToken createToken, string path,
-            RepositoryService.RepositoryType repositoryType, string changedFiles)
+        private void RunScanner(Project createProject,
+            ProjectToken createToken,
+            string path,
+            RepositoryService.RepositoryType repositoryType,
+            string changedFiles)
         {
             switch (repositoryType)
             {
@@ -153,6 +164,7 @@ namespace ProjectQualityChecker.Services
             StartDotnetScanner(projectkey, loginToken, path, changedFiles);
             DotnetRestore(path);
             RebuildDotnetProject(path);
+            // RunDotnetTests(path);
             EndDotnetScanner(loginToken, path);
         }
 
@@ -173,7 +185,9 @@ namespace ProjectQualityChecker.Services
                 workingDirectory);
         }
 
-        private int StartDotnetScanner(string projectKey, string loginToken, string workingDirectory,
+        private int StartDotnetScanner(string projectKey,
+            string loginToken,
+            string workingDirectory,
             string changedFiles)
         {
             if (changedFiles == null)
@@ -194,6 +208,16 @@ namespace ProjectQualityChecker.Services
         private int RebuildDotnetProject(string workingDirectory)
         {
             return Execute("/bin/bash", @"-c ""dotnet build""", workingDirectory);
+        }
+
+        private int RunDotnetTests(string workingDirectory)
+        {
+            return Execute("/bin/bash", $@"-c ""dotnet test --no-build 
+                /p:CollectCoverage=true  
+                /p:CoverletOutputFormat=""opencover""
+                /p:CoverletOutput=""{workingDirectory}/TestResults/"" 
+                /p:Exclude=""[xunit.runner.*]*"" 
+                --logger=""trx"" --results-directory=""{workingDirectory}/TestResults/""", workingDirectory);
         }
 
         private int EndDotnetScanner(string loginToken, string workingDirectory)
