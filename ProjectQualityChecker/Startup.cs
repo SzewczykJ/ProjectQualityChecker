@@ -37,7 +37,10 @@ namespace ProjectQualityChecker
                 o.JsonSerializerOptions.DictionaryKeyPolicy = null;
             });
 
-            services.AddDbContext<AppDbContext>(options => { options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")); });
+            services.AddDbContext<AppDbContext>(options =>
+            {
+                options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"));
+            });
 
             services.AddHttpClient<ISonarQubeClient, SonarQubeClient>(client =>
                 client.BaseAddress = new Uri(Configuration["SonarQube_API"]));
@@ -47,6 +50,7 @@ namespace ProjectQualityChecker
             services.AddScoped<IRepositoryService, RepositoryService>();
             services.AddScoped<IResultService, ResultService>();
             services.AddScoped<ICommitService, CommitService>();
+            services.AddScoped<IBranchService, BranchService>();
             services.AddScoped<IDeveloperService, DeveloperService>();
 
             services.AddScoped<IBranchRepo, BranchRepo>();
@@ -57,6 +61,7 @@ namespace ProjectQualityChecker
             services.AddScoped<ILanguageRepo, LanguageRepo>();
             services.AddScoped<IMetricRepo, MetricsRepo>();
             services.AddScoped<IRepositoryRepo, RepositoryRepo>();
+            services.AddAntiforgery();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

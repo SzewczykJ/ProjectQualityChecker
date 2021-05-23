@@ -12,6 +12,6 @@ namespace ProjectQualityChecker.Data.IDataRepository
 
         int Delete(Metric metric);
 
-        Dictionary<int, AverageMetrics> GetAverageMetricsGroupedByCommit(int repositoryId);
+        Dictionary<int, AverageMetrics> GetAverageMetricsGroupedByCommit(long repositoryId, int? branchId = null);
     }
 }

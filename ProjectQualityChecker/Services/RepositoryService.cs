@@ -57,7 +57,7 @@ namespace ProjectQualityChecker.Services
             return _repositoryRepo.Add(repository);
         }
 
-        public Repository GetById(int repositoryId)
+        public Repository GetById(long repositoryId)
         {
             return _repositoryRepo.GetById(repositoryId);
         }

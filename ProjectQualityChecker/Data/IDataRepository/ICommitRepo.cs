@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using ProjectQualityChecker.Data.Database;
 using ProjectQualityChecker.Models.Result;
 
@@ -10,6 +11,7 @@ namespace ProjectQualityChecker.Data.IDataRepository
         int Update(Commit commit);
         int Update(List<Commit> commit);
         int Delete(Commit commit);
-        CommitSummaryList GetCommitSummaries(int repositoryId);
+        CommitSummaryList GetCommitSummaries(long repositoryId, int? branchId = null);
+        Task<Commit> FindLast(long repositoryId, int branchId);
     }
 }

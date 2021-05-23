@@ -34,13 +34,17 @@ namespace ProjectQualityChecker.Data.DataRepository
             return _context.SaveChanges();
         }
 
-        public Dictionary<int, AverageMetrics> GetAverageMetricsGroupedByCommit(int repositoryId)
+        public Dictionary<int, AverageMetrics> GetAverageMetricsGroupedByCommit(long repositoryId, int? branchId = null)
         {
-            var selectedMetrics = _context.Files
+            var query = _context.Files
                 .Include(metric => metric.Metric)
-                .Where(r => r.Commit.Repository.RepositoryId == repositoryId)
-                .Select(metric => new {Key = metric.Commit.CommitId, Value = metric.Metric}).AsEnumerable();
+                .Where(r => r.Commit.Repository.RepositoryId == repositoryId).AsQueryable();
 
+            if (branchId.HasValue)
+                query = query.Where(r => r.Commit.Branch.BranchId == branchId);
+
+            var selectedMetrics = query.Select(metric => new {Key = metric.Commit.CommitId, Value = metric.Metric})
+                .AsEnumerable();
             var groupedMetrics = selectedMetrics.GroupBy(c => c.Key, value => value.Value);
 
             var response = new Dictionary<int, AverageMetrics>();

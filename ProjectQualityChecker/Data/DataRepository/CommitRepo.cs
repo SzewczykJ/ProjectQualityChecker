@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using ProjectQualityChecker.Data.Database;
 using ProjectQualityChecker.Data.IDataRepository;
@@ -40,23 +41,38 @@ namespace ProjectQualityChecker.Data.DataRepository
             return _context.SaveChanges();
         }
 
-        public CommitSummaryList GetCommitSummaries(int repositoryId)
+        public CommitSummaryList GetCommitSummaries(long repositoryId, int? branchId = null)
         {
             var response = new CommitSummaryList();
 
-            response.CommitList = _context.Commits
+            var query = _context.Commits
                 .Include(dev => dev.Developer)
                 .Include(branch => branch.Branch)
-                .Where(r => r.Repository.RepositoryId == repositoryId)
-                .Select(c => new CommitSummary
-                {
-                    Developer = c.Developer,
-                    Date = c.Date,
-                    Message = c.Message,
-                    Sha = c.Sha,
-                    CommitId = c.CommitId
-                }).ToList();
+                .Where(r => r.Repository.RepositoryId == repositoryId).AsQueryable();
 
+            if (branchId.HasValue)
+            {
+                query = query.Where(r => r.Branch.BranchId == (int) branchId);
+            }
+
+            response.CommitList = query.Select(c => new CommitSummary
+            {
+                Developer = c.Developer,
+                Date = c.Date,
+                Message = c.Message,
+                Sha = c.Sha,
+                CommitId = c.CommitId
+            }).ToList();
+
+            return response;
+        }
+
+        public Task<Commit> FindLast(long repositoryId, int branchId)
+        {
+            var response = _context.Commits
+                .Where(r => r.Repository.RepositoryId == repositoryId)
+                .Where(r => r.Branch.BranchId == branchId)
+                .LastOrDefaultAsync();
             return response;
         }
     }
