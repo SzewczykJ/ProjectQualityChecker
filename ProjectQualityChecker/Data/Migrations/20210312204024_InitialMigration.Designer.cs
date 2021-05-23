@@ -10,16 +10,16 @@ using ProjectQualityChecker.Data;
 namespace ProjectQualityChecker.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20201112082735_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20210312204024_InitialMigration")]
+    partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
-                .HasAnnotation("ProductVersion", "3.1.10")
-                .HasAnnotation("Relational:MaxIdentifierLength", 63);
+                .HasAnnotation("Relational:MaxIdentifierLength", 63)
+                .HasAnnotation("ProductVersion", "5.0.3")
+                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
             modelBuilder.Entity("ProjectQualityChecker.Data.Database.Branch", b =>
                 {
@@ -33,14 +33,14 @@ namespace ProjectQualityChecker.Data.Migrations
 
                     b.HasKey("BranchId");
 
-                    b.ToTable("Branch");
+                    b.ToTable("Branches");
                 });
 
             modelBuilder.Entity("ProjectQualityChecker.Data.Database.Commit", b =>
                 {
-                    b.Property<long>("CommitId")
+                    b.Property<int>("CommitId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
+                        .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<int?>("BranchId")
@@ -49,8 +49,8 @@ namespace ProjectQualityChecker.Data.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<long>("DeveloperId")
-                        .HasColumnType("bigint");
+                    b.Property<int?>("DeveloperId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Message")
                         .HasColumnType("text");
@@ -74,9 +74,9 @@ namespace ProjectQualityChecker.Data.Migrations
 
             modelBuilder.Entity("ProjectQualityChecker.Data.Database.Developer", b =>
                 {
-                    b.Property<long>("DeveloperId")
+                    b.Property<int>("DeveloperId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
+                        .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Email")
@@ -100,16 +100,16 @@ namespace ProjectQualityChecker.Data.Migrations
 
             modelBuilder.Entity("ProjectQualityChecker.Data.Database.File", b =>
                 {
-                    b.Property<long>("FileId")
+                    b.Property<int>("FileId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
+                        .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<long>("CommitId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("CommitId")
+                        .HasColumnType("integer");
 
-                    b.Property<long?>("FileDetailId")
-                        .HasColumnType("bigint");
+                    b.Property<int?>("FileDetailId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("SHA")
                         .HasColumnType("text");
@@ -128,9 +128,9 @@ namespace ProjectQualityChecker.Data.Migrations
 
             modelBuilder.Entity("ProjectQualityChecker.Data.Database.FileDetail", b =>
                 {
-                    b.Property<long>("FileDetailId")
+                    b.Property<int>("FileDetailId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
+                        .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Extension")
@@ -169,9 +169,9 @@ namespace ProjectQualityChecker.Data.Migrations
 
             modelBuilder.Entity("ProjectQualityChecker.Data.Database.Metric", b =>
                 {
-                    b.Property<long>("MetricId")
+                    b.Property<int>("MetricId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
+                        .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<double?>("BranchCoverage")
@@ -198,8 +198,8 @@ namespace ProjectQualityChecker.Data.Migrations
                     b.Property<int?>("DuplicatedLines")
                         .HasColumnType("integer");
 
-                    b.Property<long>("FileId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("FileId")
+                        .HasColumnType("integer");
 
                     b.Property<double?>("LineCoverage")
                         .HasColumnType("double precision");
@@ -257,15 +257,19 @@ namespace ProjectQualityChecker.Data.Migrations
 
                     b.HasOne("ProjectQualityChecker.Data.Database.Developer", "Developer")
                         .WithMany()
-                        .HasForeignKey("DeveloperId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DeveloperId");
 
                     b.HasOne("ProjectQualityChecker.Data.Database.Repository", "Repository")
                         .WithMany("Commits")
                         .HasForeignKey("RepositoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Branch");
+
+                    b.Navigation("Developer");
+
+                    b.Navigation("Repository");
                 });
 
             modelBuilder.Entity("ProjectQualityChecker.Data.Database.File", b =>
@@ -279,6 +283,10 @@ namespace ProjectQualityChecker.Data.Migrations
                     b.HasOne("ProjectQualityChecker.Data.Database.FileDetail", "FileDetail")
                         .WithMany("Files")
                         .HasForeignKey("FileDetailId");
+
+                    b.Navigation("Commit");
+
+                    b.Navigation("FileDetail");
                 });
 
             modelBuilder.Entity("ProjectQualityChecker.Data.Database.FileDetail", b =>
@@ -286,6 +294,8 @@ namespace ProjectQualityChecker.Data.Migrations
                     b.HasOne("ProjectQualityChecker.Data.Database.Language", "Language")
                         .WithMany()
                         .HasForeignKey("LanguageId");
+
+                    b.Navigation("Language");
                 });
 
             modelBuilder.Entity("ProjectQualityChecker.Data.Database.Metric", b =>
@@ -295,6 +305,33 @@ namespace ProjectQualityChecker.Data.Migrations
                         .HasForeignKey("ProjectQualityChecker.Data.Database.Metric", "FileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("File");
+                });
+
+            modelBuilder.Entity("ProjectQualityChecker.Data.Database.Branch", b =>
+                {
+                    b.Navigation("Commits");
+                });
+
+            modelBuilder.Entity("ProjectQualityChecker.Data.Database.Commit", b =>
+                {
+                    b.Navigation("Files");
+                });
+
+            modelBuilder.Entity("ProjectQualityChecker.Data.Database.File", b =>
+                {
+                    b.Navigation("Metric");
+                });
+
+            modelBuilder.Entity("ProjectQualityChecker.Data.Database.FileDetail", b =>
+                {
+                    b.Navigation("Files");
+                });
+
+            modelBuilder.Entity("ProjectQualityChecker.Data.Database.Repository", b =>
+                {
+                    b.Navigation("Commits");
                 });
 #pragma warning restore 612, 618
         }
