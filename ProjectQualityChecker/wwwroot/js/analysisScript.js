@@ -137,6 +137,7 @@
                     name: name,
                     url: url,
                     branch: branch,
+                    '@tokenSet.HeaderName': '@tokenSet.RequestToken'
                 },
                 datatype: JSON,
                 beforeSend: function () {
@@ -154,7 +155,6 @@
                     );
                 },
                 error: function (response) {
-                    //  TODO: use response message to inform user about occured error 
                     Swal.fire(
                         "Can not analyze repository",
                         "Please try again if an error has still occurred, please contact support.",

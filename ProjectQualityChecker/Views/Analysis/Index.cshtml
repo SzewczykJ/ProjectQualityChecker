@@ -1,7 +1,10 @@
-﻿@{
+﻿@inject IAntiforgery antiforgery
+@{
     ViewData["Title"] = "Analyze the project";
+    var tokenSet = antiforgery.GetAndStoreTokens(Context);
 }
 
+@using Microsoft.AspNetCore.Antiforgery
 @model RepositoryForm
 
 <link src="~/lib/sweetalert2-10.13/dist/sweetalert2.css" rel="stylesheet"/>

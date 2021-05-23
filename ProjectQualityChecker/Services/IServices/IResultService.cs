@@ -4,6 +4,6 @@ namespace ProjectQualityChecker.Services.IServices
 {
     public interface IResultService
     {
-        CommitSummaryList Summary(int repositoryId);
+        CommitSummaryList Summary(ResultsFilter resultsFilter);
     }
 }

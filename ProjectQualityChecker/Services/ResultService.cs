@@ -16,10 +16,12 @@ namespace ProjectQualityChecker.Services
             _metricRepository = metricsRepo;
         }
 
-        public CommitSummaryList Summary(int repositoryId)
+        public CommitSummaryList Summary(ResultsFilter resultsFilter)
         {
-            var commitSummaryList = _commitRepository.GetCommitSummaries(repositoryId);
-            var groupedMetrics = _metricRepository.GetAverageMetricsGroupedByCommit(repositoryId);
+            var commitSummaryList =
+                _commitRepository.GetCommitSummaries(resultsFilter.RepositoryId, resultsFilter.BranchId);
+            var groupedMetrics =
+                _metricRepository.GetAverageMetricsGroupedByCommit(resultsFilter.RepositoryId, resultsFilter.BranchId);
 
             foreach (var commit in commitSummaryList.CommitList)
             {

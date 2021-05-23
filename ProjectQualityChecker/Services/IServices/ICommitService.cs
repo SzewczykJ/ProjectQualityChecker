@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using ProjectQualityChecker.Data.Database;
 using ProjectQualityChecker.Models.Result;
 
@@ -12,5 +13,6 @@ namespace ProjectQualityChecker.Services.IServices
         int Update(List<Commit> commits);
         int Delete(Commit commit);
         CommitSummaryList GetCommitSummaries(int repositoryId);
+        Task<Commit> GetLastScannedCommit(long repositoryId, int branchId);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using ProjectQualityChecker.Data.Database;
 using ProjectQualityChecker.Data.IDataRepository;
 using ProjectQualityChecker.Models.Result;
@@ -53,6 +54,11 @@ namespace ProjectQualityChecker.Services
         public CommitSummaryList GetCommitSummaries(int repositoryId)
         {
             return _commitRepo.GetCommitSummaries(repositoryId);
+        }
+
+        public Task<Commit> GetLastScannedCommit(long repositoryId, int branchId)
+        {
+            return _commitRepo.FindLast(repositoryId, branchId);
         }
     }
 }

@@ -1,21 +1,28 @@
 ﻿$(document).ready(function () {
+    let stored_JSON;
+    let metrics;
+    loadJSON(function (response) {
+        metrics = JSON.parse(response);
+    });
 
-    function BuildChart(dataset, selectedProperty, graph, xAxisGraphContext, chartName) {
+    function BuildChart(dataset, selectedMetric, graph, xAxisGraphContext) {
         Chart.defaults.font.size = 14;
         Chart.defaults.font.family = "'Montserrat', sans-serif";
         let rectangleSet = false;
-        const chart =
+
+        metrics[selectedMetric].graphCanvas = new Chart(graph,
             {
                 type: 'line',
                 data: {
                     labels: dataset.map(el => el.Sha.substring(0, 6)),
                     datasets: [{
                         data: dataset.filter(commit => commit.Metrics != null)
-                            .map(commit => commit.Metrics[selectedProperty]),
+                            .map(commit => commit.Metrics[selectedMetric]),
                         lineTension: 0.2,
+                        backgroundColor: "rgb(128,126,126)",
                         pointBackgroundColor: new Array(dataset.length).fill("#fff"),
                         pointBorderColor: new Array(dataset.length).fill("rgb(134,133,133)"),
-                        backgroundColor: "rgba(220,220,220,0.2)",
+
                         borderWidth: 2,
                         borderColor: "rgba(220,220,220,1)",
                         pointBorderWidth: 1,
@@ -51,7 +58,7 @@
                         bodyFontFamily: 'Roboto',
                         callbacks: {
                             title: function (toolTipItem, data) {
-                                return selectedProperty;
+                                return metrics[selectedMetric].displayName;
                             },
                             label: function (toolTipItem, data) {
                                 return toolTipItem.dataset.data[toolTipItem.dataIndex].toFixed(2);
@@ -78,12 +85,8 @@
                                 fontSize: 12
                             },
                             gridLines: {
-                                color: new Array(dataset.length).fill("#8c8a8a"),
                                 display: false
                             },
-                            barThickness: 30,
-                            maxBarThickness: 30,
-                            minBarLength: 30,
                         }],
                         yAxes: [{
                             ticks: {
@@ -92,14 +95,17 @@
                             }
                         }]
                     },
+                    layout: {
+                        padding: 10
+                    },
                     onClick: function (evt, activeElements) {
                         const elementIndex = activeElements[0].index;
-                        metricsName.forEach(function (value, index) {
-                            chartList[value].data.datasets[0].pointBackgroundColor.fill("#fff");
-                            chartList[value].data.datasets[0].pointBorderColor.fill("rgba(220,220,220,1)");
-                            chartList[value].data.datasets[0].pointBackgroundColor[elementIndex] = "#6f42c1";
-                            chartList[value].data.datasets[0].pointBorderColor[elementIndex] = "#6610f2";
-                            chartList[value].update();
+                        Object.keys(metrics).forEach(function (value, index) {
+                            metrics[value].graphCanvas.data.datasets[0].pointBackgroundColor.fill("#fff");
+                            metrics[value].graphCanvas.data.datasets[0].pointBorderColor.fill("rgba(220,220,220,1)");
+                            metrics[value].graphCanvas.data.datasets[0].pointBackgroundColor[elementIndex] = "#6f42c1";
+                            metrics[value].graphCanvas.data.datasets[0].pointBorderColor[elementIndex] = "#6610f2";
+                            metrics[value].graphCanvas.update();
                         });
 
                     },
@@ -107,9 +113,9 @@
                         onComplete: function () {
                             if (!rectangleSet) {
                                 const scale = window.devicePixelRatio;
-                                const sourceCanvas = chartList[chartName].canvas;
-                                let copyWidth = chartList[chartName].scales['yAxes'].width - 5;
-                                let copyHeight = chartList[chartName].scales['yAxes'].height + chartList[chartName].scales['yAxes'].top + 10;
+                                const sourceCanvas = metrics[selectedMetric].graphCanvas.canvas;
+                                let copyWidth = metrics[selectedMetric].graphCanvas.scales['yAxes'].width;
+                                let copyHeight = metrics[selectedMetric].graphCanvas.scales['yAxes'].height + metrics[selectedMetric].graphCanvas.scales['yAxes'].top + 10;
                                 const targetCtx = xAxisGraphContext;
 
                                 targetCtx.canvas.style.width = `${copyWidth}px`;
@@ -124,51 +130,76 @@
                                 const sourceCtx = sourceCanvas.getContext('2d');
                                 sourceCtx.clearRect(0, 0, copyWidth, copyHeight);
                                 rectangleSet = true;
+                                metrics[selectedMetric].graphCanvas.update();
                             }
                         },
                         onProgress: function () {
                             if (rectangleSet === true) {
-                                const copyWidth = chartList[chartName].scales['yAxes'].width;
-                                const copyHeight = chartList[chartName].scales['yAxes'].height + chartList[chartName].scales['yAxes'].top + 10;
+                                const copyWidth = metrics[selectedMetric].graphCanvas.scales['yAxes'].width;
+                                const copyHeight = metrics[selectedMetric].graphCanvas.scales['yAxes'].height + metrics[selectedMetric].graphCanvas.scales['yAxes'].top + 10;
 
-                                const sourceCtx = chartList[chartName].canvas.getContext('2d');
+                                const sourceCtx = metrics[selectedMetric].graphCanvas.canvas.getContext('2d');
                                 sourceCtx.clearRect(0, 0, copyWidth, copyHeight);
                             }
                         }
                     }
-                }
-            };
-        return new Chart(graph, chart);
+                },
+                plugins: [{
+                    beforeRender: function (c, options) {
+                        var yScale = c.scales['yAxes'].max;
+                        var metricData = metrics[selectedMetric];
+                        var totalSteps = metricData.valueLevel.length;
+                        var gradientFill = c.ctx.createLinearGradient(0, c.height, 0, 0);
+
+                        $.each(Object.keys(metricData.valueLevel), function (index) {
+                            if (index === 0 || index === (totalSteps - 1)) {
+                                gradientFill.addColorStop(metricData.valueLevel[index], metricData.colors[index]);
+                            } else {
+                                console.log(calculateGradientStep(yScale, metricData.valueLevel[index]));
+                                gradientFill.addColorStop(calculateGradientStep(yScale, metricData.valueLevel[index]), metricData.colors[index]);
+                            }
+                        });
+
+                        c.data.datasets[0].backgroundColor = gradientFill;
+
+                    }
+                }]
+            });
     }
 
-    let stored_JSON;
-    let metricsName = [
-        "Complexity",
-        "CognitiveComplexity",
-        "DuplicatedLines",
-        "CodeSmells",
-        // "NewCodeSmells",
-        "CommentLines",
-        "CommentLinesDensity",
-        "Ncloc",
-        "Statements",
-        // "BranchCoverage",
-        // "LineCoverage"
-    ];
-    let chartList = [];
 
-    let AddCanvasToPage = function (value) {
+    let AddCanvasToPage = function (metric) {
         $('#graphs').append(
             $('<div/>', {
                 class: 'row justify-content-center my-5'
             }).append(
                 $('<div/>', {
-                    class: 'col-12'
+                    class: 'col-12 mb-4'
                 }).append(
-                    $('<span/>', {
-                        class: 'badge badge-light p-2 mb-2',
-                        text: value
-                    })
+                    $('<p/>').append(
+                        $('<button/>',
+                            {
+                                class: "btn btn-primary",
+                                text: metrics[metric].displayName,
+                                type: "button",
+                                "data-toggle": "collapse",
+                                "data-target": '#' + metric + "Description",
+                                "aria-expanded": false
+                            }).append($('<span/>', {
+                            class: "fas fa-angle-down js-rotate-if-collapsed ",
+                            "aria-hidden": true
+                        }))
+                    ),
+                    $('<div/>', {
+                        class: "collapse mt-2",
+                        "data-toggle": "false",
+                        id: metric + "Description"
+                    }).append(
+                        $('<div/>', {
+                            class: "card card-body",
+                            html: metrics[metric].description
+                        })
+                    )
                 ),
                 $('<div/>', {
                     class: 'chartWrapper col-12 p-0'
@@ -181,7 +212,7 @@
                         }).append(
                             $('<canvas/>',
                                 {
-                                    id: value,
+                                    id: metric,
                                     width: 1200,
                                     height: 400
                                 })
@@ -189,20 +220,21 @@
                     ),
                     $('<canvas/>',
                         {
-                            id: "xAxis" + value,
+                            id: "xAxis" + metric,
                             width: 0,
                             height: 400
                         })
                 ))
         );
 
+
     };
 
     function GenerateGraphs() {
-        $.each(metricsName, function (index, value) {
+        $.each(Object.keys(metrics), function (index, metric) {
             // remove old charts          
-            if ($('#' + value).length !== 0) {
-                $('#' + value).parent().parent().parent().parent().remove();
+            if ($('#' + metric).length !== 0) {
+                $('#' + metric).parent().parent().parent().parent().remove();
             }
 
             const data = stored_JSON.CommitList
@@ -210,35 +242,60 @@
                 .map(commit => commit);
             if (data.length === 0) return;
 
-            AddCanvasToPage(value);
+            AddCanvasToPage(metric);
 
-            let selectedGraph = $('#' + value)[0];
+            let selectedGraph = $('#' + metric)[0];
             let context = selectedGraph.getContext('2d');
 
-            let selectedXAxisGraph = $("#xAxis" + value)[0];
+            let selectedXAxisGraph = $("#xAxis" + metric)[0];
             let xAxiscontext = selectedXAxisGraph.getContext('2d');
 
             let newWidth = (data.length * 30) + 60;
             $('.chartAreaWrapper2').width(newWidth);
-            chartList[value] = BuildChart(data, value, context, xAxiscontext, value);
+
+            BuildChart(data, metric, context, xAxiscontext);
         });
     }
 
-    $('input[name="repository_confirm"]').click(function () {
-        let selectedRepository = $('#repository').val();
 
+    //Switch send button style
+    let selectedRepository = $('#repository');
+    var $submitbutton = $("#submitbutton");
+
+    selectedRepository.on('change', function () {
+
+        if (selectedRepository.val() != false) {
+            $submitbutton.removeAttr("disabled");
+            $submitbutton.removeClass("btn-secondary");
+            $submitbutton.addClass("btn-primary");
+        } else {
+            $submitbutton.attr("disabled", "disabled");
+            $submitbutton.addClass("btn-secondary");
+            $submitbutton.removeClass("btn-primary");
+        }
+    });
+
+
+    // Ajax query 
+    $('button[name="repository_confirm"]').click(function () {
+        let selectedRepository = $('#repository').val();
+        let selectedBranch = $('#branches').val();
+
+        if (selectedRepository == false || selectedBranch == false) return;
         $.ajax({
-            method: "GET",
+            method: "POST",
             url: "/result/getresult",
             data: {
-                repositoryId: selectedRepository
+                RepositoryId: selectedRepository,
+                BranchId: selectedBranch
             },
             success: function (response) {
                 $('#chartImage').hide();
                 $('#chartImageError').hide();
 
-                stored_JSON = response;
+                stored_JSON = response["CommitSummary"];
                 GenerateGraphs();
+                $('.collapse').collapse('hide');
 
                 if ($('.chartAreaWrapper').length === 0) {
                     $('#chartImageError').show();
@@ -252,6 +309,22 @@
         });
     });
 
+    function calculateGradientStep(oldMax, value) {
+        return (1 / oldMax) * (value - oldMax) + 1;
+    }
+
+    function loadJSON(callback) {
+
+        var xobj = new XMLHttpRequest();
+        xobj.overrideMimeType("application/json");
+        xobj.open('GET', 'js/MetricsInfo.json', true);
+        xobj.onreadystatechange = function () {
+            if (xobj.readyState == 4 && xobj.status == "200") {
+                callback(xobj.responseText);
+            }
+        };
+        xobj.send(null);
+    }
 
 });
   

@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using ProjectQualityChecker.Data.Database;
 using ProjectQualityChecker.Models.Result;
 using ProjectQualityChecker.Services.IServices;
 
@@ -9,27 +10,48 @@ namespace ProjectQualityChecker.Controllers
     {
         private readonly IRepositoryService _repositoryService;
         private readonly IResultService _resultService;
+        private readonly IBranchService _branchService;
 
-        public ResultController(IResultService resultServices, IRepositoryService repositoryService)
+        public ResultController(IResultService resultServices,
+            IRepositoryService repositoryService,
+            IBranchService branchService)
         {
             _resultService = resultServices;
             _repositoryService = repositoryService;
+            _branchService = branchService;
         }
 
         // GET
         public async Task<IActionResult> Index()
         {
-            var response = new ListRepositories();
-            response.Repositories = await _repositoryService.GetAllAsync();
-            return View(response);
+            var result = await new RepositoryController(_repositoryService, _branchService).Index();
+            return View(result);
         }
 
-        public IActionResult GetResult([FromQuery] int repositoryId)
+        [HttpPost()]
+        public IActionResult GetResult(ResultsFilter resultsFilter)
         {
-            if (repositoryId <= 0) return RedirectToAction("Index");
+            if (!ModelState.IsValid)
+                return BadRequest(resultsFilter.BranchId);
 
-            var commits = _resultService.Summary(repositoryId);
-            return Json(commits);
+            if (resultsFilter.RepositoryId <= 0) return RedirectToAction("Index");
+
+
+            Repository repository = _repositoryService.GetById(resultsFilter.RepositoryId);
+            Branch branch = _branchService.GetById(resultsFilter.BranchId);
+
+            ResultsResponse response = new ResultsResponse();
+            response.RespositoryInfo = new RepositoryInfo()
+            {
+                Name = repository.Name,
+                RepositoryId = repository.RepositoryId,
+                Url = repository.Url,
+                Branch = branch.Name,
+                BranchId = branch.BranchId
+            };
+            response.CommitSummary = _resultService.Summary(resultsFilter);
+
+            return Ok(response);
         }
     }
 }
