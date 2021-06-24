@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using LibGit2Sharp;
-using ProjectQualityChecker.Data.IDataRepository;
 using ProjectQualityChecker.Models;
 using ProjectQualityChecker.Services.IServices;
 using Repository = ProjectQualityChecker.Data.Database.Repository;
@@ -13,7 +12,7 @@ namespace ProjectQualityChecker.Services
 {
     public class SonarQubeScanner : ISonarQubeScanner
     {
-        private readonly IBranchRepo _branchRepo;
+        private readonly IBranchService _branchService;
         private readonly ICommitService _commitService;
         private readonly IDeveloperService _developerService;
         private readonly IRepositoryService _repositoryService;
@@ -27,34 +26,64 @@ namespace ProjectQualityChecker.Services
             ISonarQubeService sonarQubeService,
             ICommitService commitService,
             IDeveloperService developerService,
-            IBranchRepo branchRepo)
+            IBranchService branchService)
         {
             _sonarQubeClient = sonarQubeClient;
             _repositoryService = repositoryService;
             _sonarQubeService = sonarQubeService;
             _commitService = commitService;
             _developerService = developerService;
-            _branchRepo = branchRepo;
+            _branchService = branchService;
         }
 
         public async Task ScanRepositoryAsync(Repository repository, string branch = null)
         {
-            var repositoryURL = repository.Url;
+            var repositoryUrl = repository.Url;
 
-            using (var clonedRepository = _repositoryService.CloneRepository(repositoryURL, branch))
+            using (var clonedRepository = _repositoryService.CloneRepository(repositoryUrl, branch))
             {
                 var x = clonedRepository.Branches[branch];
-                if (branch != String.Empty)
+                if (!string.IsNullOrEmpty(branch))
                     Commands.Checkout(clonedRepository,
                         clonedRepository.Branches.FirstOrDefault(b => b.FriendlyName.Equals(branch)));
                 var branchName = clonedRepository.Head.FriendlyName;
 
                 await ScanAllCommitsFromRepositoryAsync(clonedRepository.Commits.ToArray(),
-                    repository, repositoryURL, clonedRepository, branchName);
+                    repository, repositoryUrl, clonedRepository, branchName);
             }
 
 
-            _repositoryService.DeleteRepositoryDirectory(_repositoryService.CreatePathToRepository(repositoryURL));
+            _repositoryService.DeleteRepositoryDirectory(_repositoryService.CreatePathToRepository(repositoryUrl));
+        }
+
+        public async Task ScanRepositorySinceLastScannedCommit(Repository repository, Data.Database.Branch branch)
+        {
+            var repositoryUrl = repository.Url;
+            Data.Database.Commit lastScannedCommit =
+                await _commitService.GetLastScannedCommit(repository.RepositoryId, branch.BranchId);
+
+            using (var clonedRepository = _repositoryService.CloneRepository(repositoryUrl, branch.Name))
+            {
+                var x = clonedRepository.Branches[branch.Name];
+                if (!string.IsNullOrEmpty(branch.Name))
+                    Commands.Checkout(clonedRepository,
+                        clonedRepository.Branches.FirstOrDefault(b => b.FriendlyName.Equals(branch.Name)));
+                var branchName = clonedRepository.Head.FriendlyName;
+
+                IQueryableCommitLog commits = clonedRepository.Commits;
+                if (lastScannedCommit != null)
+                {
+                    var filter = new CommitFilter {IncludeReachableFrom = lastScannedCommit.Sha};
+
+                    commits = (IQueryableCommitLog)clonedRepository.Commits.QueryBy(filter);
+                }
+
+
+                await ScanAllCommitsFromRepositoryAsync(commits.ToArray(),
+                    repository, repositoryUrl, clonedRepository, branchName);
+            }
+
+            _repositoryService.DeleteRepositoryDirectory(_repositoryService.CreatePathToRepository(repositoryUrl));
         }
 
         public async Task ScanAllCommitsFromRepositoryAsync(LibGit2Sharp.Commit[] commits,
@@ -70,25 +99,20 @@ namespace ProjectQualityChecker.Services
             var repositoryType = _repositoryService.GetRepositoryType(path);
             var project = await _sonarQubeClient.CreateProject($"{userName}-{repositoryName}");
             var token = await _sonarQubeClient.GenerateToken($"{userName}-{repositoryName}");
-
-            // var currentBranch = _branchRepo.GetByName(branchName);
-
-            //    if (currentBranch == null)
-            //       currentBranch = new Branch {Name = branchName};
-
+            var branch = _branchService.CreateBranch(branchName);
 
             for (var i = commits.Length - 1; i >= 0; i--)
             {
                 var actualCommit = commits[i];
 
                 var developerOfCommit = _developerService.CreateDeveloperFromGitCommit(actualCommit);
-                var commitToSave =
-                    _commitService.GenerateCommitFromGitCommitInfo(actualCommit, sonarRepository, developerOfCommit);
+                var commitToSave = _commitService.GenerateCommitFromGitCommitInfo(actualCommit, sonarRepository,
+                    developerOfCommit);
+                commitToSave.Branch = branch;
                 _commitService.Update(commitToSave);
 
                 Dictionary<string, CommitChanges> commitChanges;
-                if (i == commits.Length - 1)
-                    commitChanges = GetChangedFilesFromCommit(null, actualCommit.Tree, repository);
+                if (i == commits.Length - 1) commitChanges = GetChangedFilesFromCommit(null, actualCommit.Tree, repository);
                 else
                     commitChanges = GetChangedFilesFromCommit(actualCommit.Parents.First().Tree, actualCommit.Tree,
                         repository);
@@ -116,8 +140,7 @@ namespace ProjectQualityChecker.Services
             IRepository repository)
         {
             var commitChanges = new Dictionary<string, CommitChanges>();
-            if (oldTree == null && newTree == null)
-                return commitChanges;
+            if (oldTree == null && newTree == null) return commitChanges;
 
             foreach (var changes in repository.Diff.Compare<TreeChanges>(oldTree, newTree))
                 commitChanges.Add(changes.Path, new CommitChanges {Status = changes.Status, SHA = changes.Oid.Sha});
@@ -126,29 +149,31 @@ namespace ProjectQualityChecker.Services
         }
 
 
-        private void RunScanner(Project createProject,
+        private void RunScanner(
+            Project createProject,
             ProjectToken createToken,
             string path,
             RepositoryService.RepositoryType repositoryType,
-            string changedFiles)
+            string changedFiles
+        )
         {
             switch (repositoryType)
             {
                 case RepositoryService.RepositoryType.MAVEN:
-                {
-                    ScanMavenProject(createProject.Key, createToken.Token, path, changedFiles);
-                    break;
-                }
+                    {
+                        ScanMavenProject(createProject.Key, createToken.Token, path, changedFiles);
+                        break;
+                    }
                 case RepositoryService.RepositoryType.MS:
-                {
-                    ScanDotnetProject(createProject.Key, createToken.Token, path, changedFiles);
-                    break;
-                }
+                    {
+                        ScanDotnetProject(createProject.Key, createToken.Token, path, changedFiles);
+                        break;
+                    }
                 case RepositoryService.RepositoryType.OTHER:
-                {
-                    ScanOtherType(createProject.Key, createToken.Token, path, changedFiles);
-                    break;
-                }
+                    {
+                        ScanOtherType(createProject.Key, createToken.Token, path, changedFiles);
+                        break;
+                    }
             }
         }
 

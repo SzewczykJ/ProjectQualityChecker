@@ -52,7 +52,7 @@ namespace ProjectQualityChecker.Data.DataRepository
 
             if (branchId.HasValue)
             {
-                query = query.Where(r => r.Branch.BranchId == (int) branchId);
+                query = query.Where(r => r.Branch.BranchId == (int)branchId);
             }
 
             response.CommitList = query.Select(c => new CommitSummary
@@ -72,6 +72,7 @@ namespace ProjectQualityChecker.Data.DataRepository
             var response = _context.Commits
                 .Where(r => r.Repository.RepositoryId == repositoryId)
                 .Where(r => r.Branch.BranchId == branchId)
+                .OrderBy(c => c.CommitId)
                 .LastOrDefaultAsync();
             return response;
         }

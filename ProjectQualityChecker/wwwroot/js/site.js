@@ -1,6 +1,12 @@
 ﻿$(document).ready(function () {
     let stored_JSON;
+    let repositoryInfo = null;
     let metrics;
+    let selectedRepository = $('#repository');
+    var $submitbutton = $("#submitbutton");
+    var $updatebutton = $("#update");
+    var $newbranchbutton = $("#new_branch");
+
     loadJSON(function (response) {
         metrics = JSON.parse(response);
     });
@@ -33,6 +39,7 @@
                         pointHoverBorderWidth: 3
                     }],
                 },
+
                 options: {
                     title: {
                         display: false
@@ -77,7 +84,7 @@
                         },
                     },
                     scales: {
-                        xAxes: [{
+                        x: {
                             ticks: {
                                 autoSkip: false,
                                 maxRotation: 90,
@@ -87,13 +94,14 @@
                             gridLines: {
                                 display: false
                             },
-                        }],
-                        yAxes: [{
+                        },
+                        y: {
+                            suggestedMax: metrics[selectedMetric].suggestedMin,
                             ticks: {
                                 fontSize: 12,
                                 beginAtZero: true
                             }
-                        }]
+                        }
                     },
                     layout: {
                         padding: 10
@@ -114,8 +122,8 @@
                             if (!rectangleSet) {
                                 const scale = window.devicePixelRatio;
                                 const sourceCanvas = metrics[selectedMetric].graphCanvas.canvas;
-                                let copyWidth = metrics[selectedMetric].graphCanvas.scales['yAxes'].width;
-                                let copyHeight = metrics[selectedMetric].graphCanvas.scales['yAxes'].height + metrics[selectedMetric].graphCanvas.scales['yAxes'].top + 10;
+                                let copyWidth = metrics[selectedMetric].graphCanvas.scales['y'].width;
+                                let copyHeight = metrics[selectedMetric].graphCanvas.scales['y'].height + metrics[selectedMetric].graphCanvas.scales['y'].top + 10;
                                 const targetCtx = xAxisGraphContext;
 
                                 targetCtx.canvas.style.width = `${copyWidth}px`;
@@ -135,8 +143,8 @@
                         },
                         onProgress: function () {
                             if (rectangleSet === true) {
-                                const copyWidth = metrics[selectedMetric].graphCanvas.scales['yAxes'].width;
-                                const copyHeight = metrics[selectedMetric].graphCanvas.scales['yAxes'].height + metrics[selectedMetric].graphCanvas.scales['yAxes'].top + 10;
+                                const copyWidth = metrics[selectedMetric].graphCanvas.scales['y'].width;
+                                const copyHeight = metrics[selectedMetric].graphCanvas.scales['y'].height + metrics[selectedMetric].graphCanvas.scales['y'].top + 10;
 
                                 const sourceCtx = metrics[selectedMetric].graphCanvas.canvas.getContext('2d');
                                 sourceCtx.clearRect(0, 0, copyWidth, copyHeight);
@@ -146,7 +154,8 @@
                 },
                 plugins: [{
                     beforeRender: function (c, options) {
-                        var yScale = c.scales['yAxes'].max;
+                        console.log(c);
+                        var yScale = c.scales['y'].max;
                         var metricData = metrics[selectedMetric];
                         var totalSteps = metricData.valueLevel.length;
                         var gradientFill = c.ctx.createLinearGradient(0, c.height, 0, 0);
@@ -155,7 +164,6 @@
                             if (index === 0 || index === (totalSteps - 1)) {
                                 gradientFill.addColorStop(metricData.valueLevel[index], metricData.colors[index]);
                             } else {
-                                console.log(calculateGradientStep(yScale, metricData.valueLevel[index]));
                                 gradientFill.addColorStop(calculateGradientStep(yScale, metricData.valueLevel[index]), metricData.colors[index]);
                             }
                         });
@@ -258,25 +266,40 @@
     }
 
 
-    //Switch send button style
-    let selectedRepository = $('#repository');
-    var $submitbutton = $("#submitbutton");
-
+//Switch send button style
     selectedRepository.on('change', function () {
-
+        repositoryInfo = null;
+        stored_JSON = null;
         if (selectedRepository.val() != false) {
-            $submitbutton.removeAttr("disabled");
-            $submitbutton.removeClass("btn-secondary");
-            $submitbutton.addClass("btn-primary");
+            activateButton($submitbutton);
         } else {
-            $submitbutton.attr("disabled", "disabled");
-            $submitbutton.addClass("btn-secondary");
-            $submitbutton.removeClass("btn-primary");
+            deactivateButton($submitbutton);
+            deactivateButton($updatebutton);
+            deactivateButton($newbranchbutton);
+
         }
     });
 
+    $('button[name="update"]').click(function () {
+        if (repositoryInfo === null) return;
+        $.ajax({
+            method: "POST",
+            url: "/analysis/analysisupdate",
+            data: repositoryInfo,
+            success: function (response) {
+                console.log("aktualizacja");
 
-    // Ajax query 
+                ///TODO opis aktualizacji zasobów 
+                console.log(response);
+            },
+            error: function (response) {
+                console.log("error:" + response);
+            }
+        });
+
+    });
+
+    // load repository data with metrics value
     $('button[name="repository_confirm"]').click(function () {
         let selectedRepository = $('#repository').val();
         let selectedBranch = $('#branches').val();
@@ -294,6 +317,11 @@
                 $('#chartImageError').hide();
 
                 stored_JSON = response["CommitSummary"];
+                repositoryInfo = response["RespositoryInfo"];
+                //activate update button
+                activateButton($updatebutton);
+                activateButton($newbranchbutton);
+
                 GenerateGraphs();
                 $('.collapse').collapse('hide');
 
@@ -309,8 +337,55 @@
         });
     });
 
+    $newbranchbutton.unbind('click');
+    $newbranchbutton.click(function () {
+        deactivateButton($newbranchbutton);
+        $("#repositorybranchesform").append(
+            $('<div/>', {
+                class: "row mt-2",
+                id: "new_branch_row"
+            }).append(
+                $('<div/>', {
+                    class: "col-md-6 ",
+                }).append(
+                    $('<select/>', {
+                        id: "new_branches_list",
+                        name: "new_branches_list"
+                    }).append($('<option/>', {
+                            value: "default",
+                            text: "Select new branch"
+
+                        })
+                    ),
+                    $('<div/>', {
+                        class: "col-md-4 mx-auto  ",
+                    }).append($('<button/>', {
+                            type: "button",
+                            class: "btn btn-primary",
+                            id: "scan_new_branch",
+                            attributes: "disabled",
+                            text: "Scan this branch"
+
+                        })
+                    ))
+            ));
+    });
+
+
     function calculateGradientStep(oldMax, value) {
         return (1 / oldMax) * (value - oldMax) + 1;
+    }
+
+    function activateButton(button) {
+        button.removeAttr("disabled");
+        button.removeClass("btn-secondary");
+        button.addClass("btn-primary");
+    }
+
+    function deactivateButton(button) {
+        button.attr("disabled", "disabled");
+        button.addClass("btn-secondary");
+        button.removeClass("btn-primary");
     }
 
     function loadJSON(callback) {

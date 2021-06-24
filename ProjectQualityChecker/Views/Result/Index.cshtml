@@ -5,24 +5,29 @@
 
 
 <div class="row justify-content-center">
-    <div class="col-md-10">
+    <div class="col-md-8" id="repositorybranchesform">
         <div class="row align-items-center">
-            <div class="col-md-5">
-                @Html.DropDownListFor(x => Model.Repositories, new SelectList(Model.Repositories, "RepositoryId", "Name"), "Select repository", new {@class = "form-control", id = "repository", required = true})
+            <div class="col-md-6 pb-1">
+                @Html.DropDownListFor(x => Model.Repositories, new SelectList(Model.Repositories, "RepositoryId", "Name"), "Wybierz projekt", new {@class = "form-control", id = "repository", required = true})
                 @Html.ValidationMessageFor(x => x.Repositories, "", new {@class = "text-danger"})
             </div>
-            <div class="col-md-5">
-                @Html.DropDownList("parent", Enumerable.Empty<SelectListItem>(), "Select branch", new
+            <div class="col-md-6 pb-1">
+                @Html.DropDownList("parent", Enumerable.Empty<SelectListItem>(), "Wybierz gałąź", new
                 {
                     @class =
                         "form-control",
                     id = "branches", required = true
                 })
             </div>
-
-            <div class="col-md-2">
-                <button type="button" id="submitbutton" name="repository_confirm" class="btn btn-secondary" disabled>Select data</button>
+        </div>
+        <div class="row mt-2">
+            <div class="col-md-4 pb-1">
+                <button type="button" id="submitbutton" name="repository_confirm" class="btn btn-secondary" disabled>Pobierz wyniki</button>
             </div>
+            <div class="col-md-4 pb-1">
+                <button type="button" id="update" name="update" class="btn btn-secondary" disabled>Uaktualnij analizę</button>
+            </div>
+
         </div>
     </div>
 </div>
@@ -34,7 +39,7 @@
         </div>
     </div>
     <div class="row justify-content-center my-5" style="display: none" id="chartImageError">
-        <div class="col-md8 mt-2 text-center">
+        <div class="col-md-8 mt-2 text-center">
             <h3 class="display-6" style="color:#6f42c1;font-weight: 700; ">
                 We couldn't match any metric to this project.<br>
                 Please try to rescan project.
@@ -47,7 +52,7 @@
 
 </div>
 
-@section Scripts {
+@section Scripts{
     <script src="~/lib/3.0.0-alpha.2/dist/chart.min.js"></script>
     <script src="~/js/jquery.scrollsync.js"></script>
     <script src="~/js/site.js"></script>

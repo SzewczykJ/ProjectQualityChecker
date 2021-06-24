@@ -1,5 +1,48 @@
 ﻿$(document).ready(function () {
 
+    var storedRepositories = null;
+    loadExistingRepositories();
+
+    function loadExistingRepositories() {
+        $.ajax({
+            method: "POST",
+            url: "/repository",
+            success: function (response) {
+                storedRepositories = response["Repositories"];
+                $.each(storedRepositories, function (index, repository) {
+                    $('#repository').append($('<option/>', {
+                        value: index,
+                        text: repository.Name
+                    }))
+                });
+            },
+            error: function (response) {
+                console.log("error:" + response);
+            }
+        });
+    }
+
+    $('#repository').on('change', function () {
+        if (this.value == "default") {
+            $('#link').removeAttr("disabled");
+            $('#name').removeAttr("disabled");
+            $('#link').val('');
+            $('#name').val('');
+            ClearBranchSelect();
+            return;
+        }
+
+        $('#link').attr("disabled", "disabled");
+        $('#name').attr("disabled", "disabled");
+        var selectedRepo = storedRepositories[this.value];
+
+        $('#link').val(selectedRepo.Url);
+        $('#name').val(selectedRepo.Name);
+        ClearBranchSelect();
+        GetListOfBranches(selectedRepo.Url);
+    });
+
+
     function GetListOfBranches(repositoryURL) {
         var url = new URL(repositoryURL);
         var path = url.pathname.split('/');
@@ -127,16 +170,22 @@
         errorClass: "text-danger",
 
         submitHandler: function (form) {
+            let apiLink = "/analysis/analysis";
             let name = $('#name').val();
             let url = $('#link').val();
             let branch = $('#branch').val();
+            let branchId = storedRepositories[$('#repository').val()].BranchId;
+            let repositoryId = storedRepositories[$('#repository').val()].RepositoryId;
+            if (repositoryId != null) apiLink = "/analysis/analysisupdate";
             $.ajax({
                 method: "POST",
-                url: "/analysis/analysis",
+                url: apiLink,
                 data: {
                     name: name,
                     url: url,
                     branch: branch,
+                    branchId: branchId,
+                    repositoryId: repositoryId,
                     '@tokenSet.HeaderName': '@tokenSet.RequestToken'
                 },
                 datatype: JSON,
